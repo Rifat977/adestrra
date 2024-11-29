@@ -1,0 +1,61 @@
+from django.contrib import admin
+import requests
+from .models import *
+from django.utils.timezone import now
+
+@admin.register(PublisherPlacement)
+class PublisherPlacementAdmin(admin.ModelAdmin):
+    list_display = ('id', 'domain_id', 'title', 'alias', 'direct_url')
+    search_fields = ('title', 'alias', 'domain_id')
+    
+    
+    def get_queryset(self, request):
+        self.fetch_publisher_placements()
+        return super().get_queryset(request)
+
+    def fetch_publisher_placements(self):
+        api_url = "https://api3.adsterratools.com/publisher/placements.json"
+        headers = {
+            'Accept': 'application/json',
+            'X-API-Key': '23943b6bc3d4b6b68e10ea32ec72a3c4',
+        }
+
+        response = requests.get(api_url, headers=headers)
+
+        if response.status_code == 200:
+            data = response.json().get("items", [])
+            for item in data:
+                PublisherPlacement.objects.update_or_create(
+                    id=item["id"],
+                    defaults={
+                        "domain_id": item["domain_id"],
+                        "title": item["title"],
+                        "alias": item.get("alias", ""),
+                        "direct_url": item.get("direct_url", ""),
+                    },
+                )
+            print(f"Fetched {len(data)} publisher placements successfully.")
+        else:
+            print(f"Failed to fetch publisher placements. Status code: {response.status_code}",
+                level="error",
+            )
+
+    
+    def has_add_permission(self, request):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+class AdStatisticsAdmin(admin.ModelAdmin):
+    list_display = ('placement', 'user', 'date', 'impressions', 'clicks', 'ctr', 'cpm', 'revenue')
+    search_fields = ('placement__title', 'user__username', 'date')
+    list_filter = ('placement', 'date', 'user')
+
+class PlacementLinkAdmin(admin.ModelAdmin):
+    list_display = ('user', 'placement', 'link')
+    search_fields = ('user__username', 'placement__title')
+
+
+admin.site.register(AdStatistics, AdStatisticsAdmin)
+admin.site.register(PlacementLink, PlacementLinkAdmin)

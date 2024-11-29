@@ -1,0 +1,77 @@
+{% extends 'partials/base.html' %}
+{% load static %}
+
+{% block title %}Direct Links{% endblock %}
+
+{% block content %}
+<div class="content-wrapper">
+  <!-- Content -->
+
+  <div class="container-xxl flex-grow-1 container-p-y">
+
+    <div class="card">
+      <h5 class="card-header">Direct Links</h5>
+      <div class="table-responsive text-nowrap">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>ID</th>
+              <th>Title</th>
+              <th>...</th>
+            </tr>
+          </thead>
+          <tbody class="table-border-bottom-0">
+            
+            {% for link in placement_links %}
+            <tr>
+              <td>
+                {{link.created_at}}
+              </td>
+              <td>{{ link.placement.id }}</td>
+              <td>{{ link.placement.title }}</td>
+              <td>
+                <button class="btn btn-sm btn-secondary">View Statistics</button>
+                <button class="btn btn-sm btn-primary copy-link-btn" data-link="{{ link.link }}">Copy Link</button>
+              </td>
+            </tr>
+            {% endfor %}
+
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        const copyButtons = document.querySelectorAll(".copy-link-btn");
+    
+        copyButtons.forEach(button => {
+          button.addEventListener("click", function () {
+            const link = this.getAttribute("data-link");
+    
+            navigator.clipboard.writeText(link).then(() => {
+              this.textContent = "Copied!";
+              this.classList.remove("btn-primary");
+              this.classList.add("btn-info");
+    
+              setTimeout(() => {
+                this.textContent = "Copy Link";
+                this.classList.remove("btn-info");
+                this.classList.add("btn-primary");
+              }, 2000);
+            }).catch(err => {
+              console.error("Failed to copy text: ", err);
+            });
+          });
+        });
+      });
+    </script>
+    
+    
+  </div>
+  <!-- / Content -->
+
+
+</div>
+{% endblock %}

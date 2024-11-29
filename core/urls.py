@@ -1,0 +1,12 @@
+from django.urls import path
+from . import views
+
+app_name = "core"
+
+urlpatterns = [
+    path('redirect/<int:placement_id>/<uuid:unique_id>/', views.redirect_to_ad, name='redirect_to_ad'),
+    path('', views.dashboard, name="dashboard"),
+    path('links/', views.direct_link, name="direct_link"),
+    path('statistics/', views.statistics, name="statistics"),
+    path('generate-link/', views.generate_link, name='generate_link'),
+]
