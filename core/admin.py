@@ -2,6 +2,7 @@ from django.contrib import admin
 import requests
 from .models import *
 from django.utils.timezone import now
+from django.conf import settings
 
 @admin.register(PublisherPlacement)
 class PublisherPlacementAdmin(admin.ModelAdmin):
@@ -17,7 +18,7 @@ class PublisherPlacementAdmin(admin.ModelAdmin):
         api_url = "https://api3.adsterratools.com/publisher/placements.json"
         headers = {
             'Accept': 'application/json',
-            'X-API-Key': '23943b6bc3d4b6b68e10ea32ec72a3c4',
+            'X-API-Key': settings.API_KEY,
         }
 
         response = requests.get(api_url, headers=headers)
@@ -48,7 +49,7 @@ class PublisherPlacementAdmin(admin.ModelAdmin):
         return False
 
 class AdStatisticsAdmin(admin.ModelAdmin):
-    list_display = ('placement', 'user', 'date', 'impressions', 'clicks', 'ctr', 'cpm', 'revenue')
+    list_display = ('placement', 'user', 'date', 'impressions', 'revenue')
     search_fields = ('placement__title', 'user__username', 'date')
     list_filter = ('placement', 'date', 'user')
 
@@ -56,6 +57,12 @@ class PlacementLinkAdmin(admin.ModelAdmin):
     list_display = ('user', 'placement', 'link')
     search_fields = ('user__username', 'placement__title')
 
+class VisitorLogAdmin(admin.ModelAdmin):
+    list_display = ('placement_link', 'ip_address', 'user_agent', 'visited_at')
+    search_fields = ('placement_link', 'ip_address', 'user_agent', 'visited_at')
+
 
 admin.site.register(AdStatistics, AdStatisticsAdmin)
 admin.site.register(PlacementLink, PlacementLinkAdmin)
+admin.site.register(CountryRevenue)
+admin.site.register(VisitorLog, VisitorLogAdmin)

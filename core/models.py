@@ -5,6 +5,8 @@ import uuid
 from django.urls import reverse
 from django.conf import settings
 
+from django_countries.fields import CountryField
+
 
 from django.contrib.auth import get_user_model
 
@@ -32,9 +34,6 @@ class AdStatistics(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="ad_statistics")
     date = models.DateField(default=timezone.now)
     impressions = models.IntegerField(default=0)
-    clicks = models.IntegerField(default=0)
-    ctr = models.FloatField(default=0.0)  
-    cpm = models.FloatField(default=0.0) 
     revenue = models.FloatField(default=0.0)
 
     class Meta:
@@ -61,4 +60,28 @@ class PlacementLink(models.Model):
             self.link = f"{domain}{relative_url}"
         super().save(*args, **kwargs)
 
+
+
+class CountryRevenue(models.Model):
+    country = CountryField() 
+    impressions = models.PositiveIntegerField(default=0) 
+    revenue = models.FloatField(default=0.0) 
+    class Meta:
+        unique_together = ('country',)
+
+    def __str__(self):
+        return f"Country: {self.country} | Revenue: ${self.revenue} | Impressions: {self.impressions}"
+
     
+class VisitorLog(models.Model):
+    placement_link = models.ForeignKey(PlacementLink, on_delete=models.CASCADE, related_name="visitor_logs")
+    ip_address = models.GenericIPAddressField()
+    user_agent = models.TextField(null=True, blank=True)
+    visited_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('placement_link', 'ip_address', 'visited_at')
+
+    def __str__(self):
+        return f"IP: {self.ip_address} | {self.visited_at}"
+

@@ -11,6 +11,8 @@ DEBUG = True
 
 SITE_URL = 'http://127.0.0.1:8000'
 
+API_KEY = '23943b6bc3d4b6b68e10ea32ec72a3c4'
+
 ALLOWED_HOSTS = ["*"]
 
 AUTH_USER_MODEL = 'account.CustomUser'
