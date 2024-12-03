@@ -137,7 +137,7 @@ def track_visit(request, placement_link):
             ip_address=ip_address,
             user_agent=user_agent
         )
-        update_ad_statistics(placement, country_code)
+        update_ad_statistics(placement_link, country_code)
         return True 
     return False  
 
