@@ -8,6 +8,9 @@ from django.conf import settings
 from datetime import timedelta
 import requests
 import geoip2.database
+from django.db import transaction
+from django.db.models import F
+
 
 
 # Create your views here.
@@ -69,104 +72,92 @@ def generate_link(request):
     return JsonResponse({"error": "Invalid request method."}, status=405)
 
 
-def update_ad_statistics(placement, country_code):
+@transaction.atomic
+def update_ad_statistics(placement_link, country_code, user):
     try:
-        country_revenue = CountryRevenue.objects.filter(country=country_code).aggregate(
-            total_revenue=models.Sum('revenue'),
-            total_impressions=models.Sum('impressions')
+        country_revenue = CountryRevenue.objects.filter(country=country_code).first()
+        total_revenue = country_revenue.revenue if country_revenue else 0.0
+        print(total_revenue)
+
+        if not placement_link:
+            print(f"User {user.username} is not linked to placement {placement_link.placement.title}. No updates made.")
+            return
+
+        ad_stat, created = AdStatistics.objects.get_or_create(
+            placement=placement_link.placement,
+            user=user,
+            defaults={"revenue": 0.0, "impressions": 0},
         )
 
-        total_revenue = country_revenue['total_revenue'] or 0.0
-        total_impressions = country_revenue['total_impressions'] or 0
+        ad_stat.revenue = F('revenue') + total_revenue
+        ad_stat.impressions += 1
+        ad_stat.save()
 
-        linked_users = PlacementLink.objects.filter(placement=placement).select_related('user')
+        updated_stat = AdStatistics.objects.get(id=ad_stat.id)
+        print(f"Updated in DB: Revenue - {updated_stat.revenue}, Impressions - {updated_stat.impressions}")
+        print(f"Successfully updated statistics for placement: {placement_link.placement.title} | Country: {country_code}")
 
-        for link in linked_users:
-            user = link.user
-
-            user_revenue = total_revenue / len(linked_users) if linked_users else 0
-            user_impressions = total_impressions / len(linked_users) if linked_users else 0
-
-            ad_stat, created = AdStatistics.objects.update_or_create(
-                placement=placement,
-                user=user,
-                defaults={
-                    "revenue": user_revenue,
-                    "impressions": user_impressions,
-                }
-            )
-
-            print(f"Updated stats for {user.username}: Revenue - {user_revenue}, Impressions - {user_impressions}")
-
-        print(f"Successfully updated statistics for placement: {placement.title} | Country: {country_code}")
+        
+        return redirect(placement_link.direct_url)
 
     except Exception as e:
-        print(f"Error updating statistics: {e}")
+        print(f"Error updating revenue for user {user.username}: {str(e)}")
 
 
-from datetime import timedelta
 
 def get_country_from_ip(ip_address):
     geoip_db_path = settings.BASE_DIR / 'GeoLite2-Country.mmdb'
     try:
-        with geoip2.database.Reader(geoip_db_path) as reader:
+        with geoip2.database.Reader(str(geoip_db_path)) as reader:
             response = reader.country(ip_address)
-            return response.country.iso_code  
+            return response.country.iso_code
     except geoip2.errors.AddressNotFoundError:
+        return None
+    except Exception as e:
+        print(f"Error in IP geolocation: {str(e)}")
         return None
 
 
 def is_duplicate_visitor(placement_link, ip_address):
-    recent_logs = VisitorLog.objects.filter(
+    return VisitorLog.objects.filter(
         placement_link=placement_link,
-        ip_address=ip_address
-    )
-    return recent_logs.exists()
+        ip_address=ip_address,
+    ).exists()
 
-def track_visit(request, placement_link):
-    ip_address = request.META.get('HTTP_X_FORWARDED_FOR', request.META.get('REMOTE_ADDR'))
-    proxy = request.META.get('HTTP_VIA', None) 
+
+def track_visit(request, placement_link, user):
+    ip_address = request.META.get('HTTP_X_FORWARDED_FOR') or request.META.get('REMOTE_ADDR')
+    proxy = request.META.get('HTTP_VIA', None)
     user_agent = request.META.get('HTTP_USER_AGENT', None)
-    country_code = get_country_from_ip(ip_address)
 
-    print(country_code)
-    
+    country_code = get_country_from_ip(ip_address)
+    # country_code = 'BD'
+
+    print(f"Visitor IP: {ip_address}, Country Code: {country_code}")
+
     if proxy is None and country_code and not is_duplicate_visitor(placement_link, ip_address):
         VisitorLog.objects.create(
             placement_link=placement_link,
             ip_address=ip_address,
-            user_agent=user_agent
+            user_agent=user_agent,
         )
-        update_ad_statistics(placement_link, country_code)
-        return True 
-    return False  
+        return country_code
+
+    print(f"Invalid or duplicate visit detected: IP {ip_address}, Proxy: {proxy}")
+    return False
 
 
 def redirect_to_ad(request, placement_id, unique_id):
-    placement_link = get_object_or_404(PlacementLink, placement_id=placement_id, link__contains=unique_id)
-    placement = placement_link.placement
-    user = request.user
-    today = timezone.now().date()
-
-    ad_stat, created = AdStatistics.objects.get_or_create(
-        placement=placement,
-        user=user,
-        date=today,
+    placement_link = get_object_or_404(
+        PlacementLink, placement_id=placement_id, link__contains=unique_id
     )
+    placement = placement_link.placement
+    user = placement_link.user
 
-    track_visit_result = track_visit(request, placement_link)
+    track_visit_result = track_visit(request, placement_link, user)
 
     if track_visit_result:
-        if created:
-            ad_stat.impressions = 1
-        else:
-            ad_stat.impressions += 1
-
-        ad_stat.save()
-        
+        update_ad_statistics(placement_link, track_visit_result, user)
         return redirect(placement.direct_url)
-    else:
-        return JsonResponse({
-            "message": "Disallowed user detected",
-        })
 
+    return JsonResponse({"message": "Disallowed user detected"}, status=403)

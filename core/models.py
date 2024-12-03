@@ -6,7 +6,7 @@ from django.urls import reverse
 from django.conf import settings
 
 from django_countries.fields import CountryField
-
+from decimal import Decimal
 
 from django.contrib.auth import get_user_model
 
@@ -27,22 +27,6 @@ class PublisherPlacement(models.Model):
     def __str__(self):
         return self.title
 
-
-
-class AdStatistics(models.Model):
-    placement = models.ForeignKey(PublisherPlacement, on_delete=models.CASCADE, related_name="ad_statistics")
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="ad_statistics")
-    date = models.DateField(default=timezone.now)
-    impressions = models.IntegerField(default=0)
-    revenue = models.FloatField(default=0.0)
-
-    class Meta:
-        unique_together = ('placement', 'user', 'date')
-
-    def __str__(self):
-        return f"{self.user.username} - {self.placement.title} - {self.date}"
-
-
 class PlacementLink(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     placement = models.ForeignKey(PublisherPlacement, on_delete=models.CASCADE)
@@ -60,12 +44,25 @@ class PlacementLink(models.Model):
             self.link = f"{domain}{relative_url}"
         super().save(*args, **kwargs)
 
+class AdStatistics(models.Model):
+    placement = models.ForeignKey(PublisherPlacement, on_delete=models.CASCADE, related_name="ad_statistics")
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="ad_statistics")
+    date = models.DateField(default=timezone.now)
+    impressions = models.IntegerField(default=0)
+    revenue = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal('0.00'))
+
+
+    class Meta:
+        unique_together = ('placement', 'user', 'date')
+
+    def __str__(self):
+        return f"{self.user.username} - {self.placement.title} - {self.date}"
 
 
 class CountryRevenue(models.Model):
     country = CountryField() 
     impressions = models.PositiveIntegerField(default=0) 
-    revenue = models.FloatField(default=0.0) 
+    revenue = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal('0.00'))
     class Meta:
         unique_together = ('country',)
 
