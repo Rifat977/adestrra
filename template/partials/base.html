@@ -96,7 +96,7 @@
               <ul class="navbar-nav flex-row align-items-center ms-auto">
                 <!-- Place this tag where you want the button to render. -->
                 <li class="nav-item lh-1 me-3">
-                  Balance: ${{request.user.balance}}
+                  Balance: ${{user_balance}}
                 </li>
 
                 <!-- User -->
@@ -116,8 +116,8 @@
                             </div>
                           </div>
                           <div class="flex-grow-1">
-                            <span class="fw-semibold d-block">John Doe</span>
-                            <small class="text-muted">Admin</small>
+                            <span class="fw-semibold d-block">{{request.user.first_name}} {{request.user.last_name}}</span>
+                            <small class="text-muted">{{request.user.username}}</small>
                           </div>
                         </div>
                       </a>

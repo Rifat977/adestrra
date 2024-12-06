@@ -63,8 +63,22 @@ class CountryRevenue(models.Model):
     country = CountryField() 
     impressions = models.PositiveIntegerField(default=0) 
     revenue = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal('0.00'))
+    is_universal = models.BooleanField(default=False)  
+
     class Meta:
         unique_together = ('country',)
+
+    def save(self, *args, **kwargs):
+        if self.is_universal:
+            existing = CountryRevenue.objects.filter(is_universal=True).exclude(pk=self.pk).first()
+            if existing:
+                existing.revenue = self.revenue
+                existing.impressions = self.impressions
+                existing.save()
+                return  
+        super().save(*args, **kwargs)
+
+
 
     def __str__(self):
         return f"Country: {self.country} | Revenue: ${self.revenue} | Impressions: {self.impressions}"
@@ -81,4 +95,5 @@ class VisitorLog(models.Model):
 
     def __str__(self):
         return f"IP: {self.ip_address} | {self.visited_at}"
+
 

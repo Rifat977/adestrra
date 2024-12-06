@@ -1,11 +1,13 @@
 from django.shortcuts import render, redirect
 
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import auth, messages
 from django.contrib.auth import authenticate, login, logout
 from django.utils.crypto import get_random_string
 from django.utils.timezone import now
-from .models import CustomUser
+from .models import *
+from decimal import Decimal
+
 
 
 # Create your views here.
@@ -92,3 +94,35 @@ def user_login(request):
                 messages.error(request, "Invalid email or password.")
                 
         return render(request, 'account/login.html')
+
+
+
+
+@login_required
+def request_withdrawal(request):
+    withdrawals = UserBalanceWithdrawal.objects.filter(user=request.user)
+
+    if request.method == 'POST':
+        amount = Decimal(request.POST.get('amount', 0.0))
+        account_number = request.POST.get('account_number', '').strip()
+        account_details = request.POST.get('account_details', '').strip()
+
+        if amount <= 0:
+            messages.error(request, "Invalid withdrawal amount.")
+        elif amount > request.user.balance:
+            messages.error(request, "Insufficient balance.")
+        elif not account_number or not account_details:
+            messages.error(request, "Account number and account details are required.")
+        else:
+            UserBalanceWithdrawal.objects.create(
+                user=request.user,
+                amount=amount,
+                account_number=account_number,
+                account_details=account_details
+            )
+            messages.success(request, "Withdrawal request submitted successfully.")
+            return redirect('account:request_withdrawal')
+
+    return render(request, 'withdrawal_form.html', {
+        'withdrawals': withdrawals
+    })

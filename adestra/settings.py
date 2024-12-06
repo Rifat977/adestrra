@@ -9,8 +9,8 @@ SECRET_KEY = 'django-insecure-p#r@xi=7h4s0$oxhc-i7p59*e13j692upj!s+mr!%wpoy)(^!x
 
 DEBUG = True
 
-# SITE_URL = 'http://127.0.0.1:8000'
-SITE_URL = 'https://cparobust.com'
+SITE_URL = 'http://127.0.0.1:8000'
+# SITE_URL = 'https://cparobust.com'
 
 API_KEY = '23943b6bc3d4b6b68e10ea32ec72a3c4'
 
@@ -60,6 +60,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'account.context_processors.user_balance_processor', 
             ],
             'libraries':{
             'custom_filters': 'core.templatetags.custom_filters',

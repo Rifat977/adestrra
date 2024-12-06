@@ -76,6 +76,9 @@ def generate_link(request):
 def update_ad_statistics(placement_link, country_code, user):
     try:
         country_revenue = CountryRevenue.objects.filter(country=country_code).first()
+        if not country_revenue:
+            country_revenue = CountryRevenue.objects.filter(is_universal=True).first()
+
         total_revenue = country_revenue.revenue if country_revenue else 0.0
         print(total_revenue)
 
