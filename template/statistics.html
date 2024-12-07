@@ -5,68 +5,116 @@
 
 {% block content %}
 <div class="content-wrapper">
-  <!-- Content -->
-
   <div class="container-xxl flex-grow-1 container-p-y">
 
-    <div class="card">
-      <h5 class="card-header">Statistics</h5>
-      <div class="table-responsive text-nowrap">
-        <table class="table">
-          <thead>
-            <tr>
-              <th>Date</th>
-              <th>Placement</th>
-              <th>Impression</th>
-              <th>Revenue</th>
-            </tr>
-          </thead>
-          <tbody class="table-border-bottom-0">
-            
-            {% for stat in statistics %}
-            <tr>
-              <td>{{stat.date}}</td>
-              <td>{{stat.placement}}</td>
-              <td>{{stat.impressions}}</td>
-              <td>{{stat.revenue}}</td>
-            </tr>
-            {% endfor %}
-
-          </tbody>
-        </table>
+    <div class="row">
+      <div class="col-lg-6">
+        <div class="card shadow">
+          <h5 class="card-header bg-primary text-white">Daily Statistics</h5>
+          <div class="table-responsive">
+            <table class="table table-hover table-bordered">
+              <thead class="table-light">
+                <tr>
+                  <th>Date</th>
+                  <th>Placement</th>
+                  <th>Impressions</th>
+                  <th>Revenue</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for stat in statistics %}
+                <tr>
+                  <td>{{ stat.date }}</td>
+                  <td>{{ stat.placement }}</td>
+                  <td>{{ stat.impressions }}</td>
+                  <td>${{ stat.revenue|floatformat:2 }}</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
       </div>
+      <div class="col-md-6">
+        <div class="card h-100">
+          <div class="card-header d-flex align-items-center justify-content-between pb-0">
+            <div class="card-title mb-0">
+              <h5 class="m-0 me-2">Ads Statistics</h5>
+              <small class="text-muted">Total Impressions and Revenue</small>
+            </div>
+          </div>
+
+          <div class="d-flex justify-content-between align-items-center p-3">
+            <div class="d-flex flex-column align-items-center gap-1">
+              <h2 class="mb-2">{{ total_impressions }}</h2>
+              <span>Total Impressions</span>
+            </div>
+            <div class="d-flex flex-column align-items-center gap-1">
+              <h2 class="mb-2">${{ total_revenue|floatformat:2 }}</h2>
+              <span>Total Revenue</span>
+            </div>
+          </div>
+
+          <div class="card-body">
+            <ul class="p-0 m-0">
+              {% for item in grouped_statistics %}
+              <li class="d-flex mb-4 pb-1">
+                <div class="avatar flex-shrink-0 me-3">
+                  <span class="avatar-initial rounded bg-label-primary">
+                    <i class="bx bx-bar-chart-alt"></i>
+                  </span>
+                </div>
+                <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
+                  <div class="me-2">
+                    <h6 class="mb-0">{{ item.placement__title }}</h6>
+                    <small class="text-muted">Impressions: {{ item.total_impressions }}</small>
+                  </div>
+                  <div class="user-progress">
+                    <small class="fw-semibold">Revenue: ${{ item.total_revenue|floatformat:2 }}</small>
+                  </div>
+                </div>
+              </li>
+              {% endfor %}
+            </ul>
+          </div>
+        </div>
+      </div>
+
     </div>
 
-    <script>
-      document.addEventListener("DOMContentLoaded", function () {
-        const copyButtons = document.querySelectorAll(".copy-link-btn");
-    
-        copyButtons.forEach(button => {
-          button.addEventListener("click", function () {
-            const link = this.getAttribute("data-link");
-    
-            navigator.clipboard.writeText(link).then(() => {
-              this.textContent = "Copied!";
-              this.classList.remove("btn-primary");
-              this.classList.add("btn-info");
-    
-              setTimeout(() => {
-                this.textContent = "Copy Link";
-                this.classList.remove("btn-info");
-                this.classList.add("btn-primary");
-              }, 2000);
-            }).catch(err => {
-              console.error("Failed to copy text: ", err);
-            });
-          });
-        });
-      });
-    </script>
-    
-    
   </div>
-  <!-- / Content -->
-
-
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const chartData = {{ chart_data|safe }};
+const options = {
+  series: chartData.series,
+  chart: {
+    height: 400,
+    type: 'bar',
+    toolbar: { show: false }
+  },
+  xaxis: {
+    categories: chartData.placements,
+    title: { text: 'Placements' }
+  },
+  yaxis: {
+    title: { text: 'Values' }
+  },
+  colors: ['#008FFB', '#FF4560'],
+  tooltip: {
+    shared: true,
+    intersect: false
+  }
+};
+
+
+    const chart = new ApexCharts(document.querySelector("#orderStatisticsChart"), options);
+    chart.render();
+  });
+</script>
+
+
 {% endblock %}

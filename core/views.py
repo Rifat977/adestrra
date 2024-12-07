@@ -37,14 +37,49 @@ def direct_link(request):
     }
     return render(request, 'direct-link.html', context)
 
+from collections import defaultdict
+from django.db.models import Sum, F
+
 
 @login_required
 def statistics(request):
-    statistics = AdStatistics.objects.filter(user=request.user)
-    context = {
-        'statistics' : statistics
+    grouped_statistics = (
+        AdStatistics.objects.filter(user=request.user)
+        .values('placement__title')
+        .annotate(
+            total_impressions=Sum('impressions'),
+            total_revenue=Sum('revenue')
+        )
+        .order_by('-total_revenue') 
+    )
+
+    statistics = AdStatistics.objects.filter(user=request.user).order_by('-id')
+
+    chart_data = {
+        "placements": [item["placement__title"] for item in grouped_statistics],
+        "series": [
+            {
+                "name": "Impressions",
+                "data": [item["total_impressions"] for item in grouped_statistics],
+            },
+            {
+                "name": "Revenue",
+                "data": [item["total_revenue"] for item in grouped_statistics],
+            },
+        ],
     }
-    return render(request, 'statistics.html', context)
+
+    total_impressions = sum(item["total_impressions"] for item in grouped_statistics)
+
+    total_revenue = sum(item["total_revenue"] for item in grouped_statistics)
+
+    return render(request, 'statistics.html', {
+        'grouped_statistics': grouped_statistics,
+        'chart_data': chart_data,
+        'total_impressions': total_impressions,
+        'total_revenue' : total_revenue,
+        'statistics' : statistics
+    })
 
 
 @login_required
