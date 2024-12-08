@@ -9,11 +9,6 @@ SECRET_KEY = 'django-insecure-p#r@xi=7h4s0$oxhc-i7p59*e13j692upj!s+mr!%wpoy)(^!x
 
 DEBUG = True
 
-# SITE_URL = 'http://127.0.0.1:8000'
-SITE_URL = 'https://cparobust.com'
-
-API_KEY = '23943b6bc3d4b6b68e10ea32ec72a3c4'
-
 ALLOWED_HOSTS = ["*"]
 
 AUTH_USER_MODEL = 'account.CustomUser'

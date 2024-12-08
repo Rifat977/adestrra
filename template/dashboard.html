@@ -13,12 +13,58 @@
 
     <h5 class="pb-1 mb-4">Ads</h5>
 
-    {% for placement in placements %}
-    {% if placement.direct_url %}
+  
     <div class="row mb-5">
-      <div class="col-md">
+      
+      <div class="col-md-8">
+
         <div class="card mb-3">
-          <div class="row g-0">
+          <div class="card-header d-flex align-items-center justify-content-center pb-0">
+            <div class="card-title mb-0 text-center justify-content-center">
+              <h5 class="m-0 me-2">Ads Statistics</h5>
+              <small class="text-muted">Total Impressions and Revenue</small>
+            </div>
+          </div>
+
+          <div class="d-flex justify-content-between align-items-center p-3">
+            <div class="d-flex flex-column align-items-center gap-1">
+              <h2 class="mb-2">{{ total_impressions }}</h2>
+              <span>Total Impressions</span>
+            </div>
+            <div class="d-flex flex-column align-items-center gap-1">
+              <h2 class="mb-2">${{ total_revenue|floatformat:2 }}</h2>
+              <span>Total Revenue</span>
+            </div>
+          </div>
+
+          <div class="card-body">
+            <ul class="p-0 m-0">
+              {% for item in grouped_statistics %}
+              <li class="d-flex mb-4 pb-1">
+                <div class="avatar flex-shrink-0 me-3">
+                  <span class="avatar-initial rounded bg-label-primary">
+                    <i class="bx bx-bar-chart-alt"></i>
+                  </span>
+                </div>
+                <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
+                  <div class="me-2">
+                    <h6 class="mb-0">{{ item.placement__title }}</h6>
+                    <small class="text-muted">Impressions: {{ item.total_impressions }}</small>
+                  </div>
+                  <div class="user-progress">
+                    <small class="fw-semibold">Revenue: ${{ item.total_revenue|floatformat:2 }}</small>
+                  </div>
+                </div>
+              </li>
+              {% endfor %}
+            </ul>
+          </div>
+        </div>
+
+        {% for placement in placements %}
+        {% if placement.direct_url and placement.is_active %}
+        <div class="card mb-3">
+          <div class="row g-0 align-items-center">
             <div class="col-md-8">
               <div class="card-body">
                 <h5 class="card-title">{{ placement.title }}</h5>
@@ -26,7 +72,7 @@
                   {{ placement.description }}
                   <br>
                   {% if placement.id in generated_links %}
-                  <div class="link-section">
+                  <div class="link-section mt-2">
                     <button class="btn btn-sm btn-danger" disabled>Generated</button>
                     <button class="btn btn-sm btn-primary copy-link-btn" data-link="{{ generated_links|dict_key:placement.id }}">Copy Link</button>
                   </div>
@@ -35,21 +81,87 @@
                   {% endif %}
                 </p>
                 <p class="card-text">
-                  <small class="text-muted">{{ placement.created_at }}</small>
+                  <small class="text-muted">Created: {{ placement.created_at|date:"M d, Y" }}</small>
                 </p>
               </div>
             </div>
-            <div class="col-md-4">
+            <div class="col-md-4 d-flex align-items-center justify-content-center">
               {% if placement.image %}
-              <img class="card-img card-img-right" src="{{ placement.image.url }}" alt="Card image" />
+              <img class="card-img img-fluid rounded" src="{{ placement.image.url }}" alt="Placement image" style="max-height: 150px; max-width: 100%; object-fit: contain;" />
               {% endif %}
             </div>
           </div>
         </div>
+        {% endif %}
+        {% endfor %}
       </div>
+      
+      <div class="col-md-4">
+        <div class="card">
+          <!-- Latest Full Notice -->
+          <div class="card-body pb-0">
+            <div class="latest-notice text-center">
+              {% if latest_notice.image %}
+              <img src="{{ latest_notice.image.url }}" alt="{{ latest_notice.title }}" style="height: 120px;" class="img-fluid rounded mb-2" />
+              {% else %}
+              <img src="{% static 'assets/img/illustrations/man-with-laptop-light.png' %}" style="height: 120px;" alt="Default Notice Image" class="img-fluid rounded mb-2" />
+              {% endif %}
+              <h5 class="fw-bold">{{ latest_notice.title }}</h5>
+              <p class="text-muted">{{ latest_notice.description }}</p>
+            </div>
+          </div>
+          <hr class="m-0">
+          <!-- Notice List -->
+          <div class="card-body pt-2">
+            <ul class="list-group list-group-flush">
+              {% for notice in notices %}
+              <li class="list-group-item">
+                <a href="{% url 'core:notice_detail' notice.id %}" class="text-decoration-none text-dark">{{ notice.title }}</a>
+                <span class="text-muted float-end">{{ notice.created_at|date:"M d, Y" }}</span>
+              </li>
+              {% empty %}
+              <li class="list-group-item text-muted text-center">No notices available</li>
+              {% endfor %}
+            </ul>
+            <!-- Pagination -->
+            <div class="d-flex justify-content-center mt-3">
+              <nav aria-label="Notice pagination">
+                <ul class="pagination pagination-sm">
+                  {% if notices.has_previous %}
+                  <li class="page-item">
+                    <a class="page-link" href="?page={{ notices.previous_page_number }}">Previous</a>
+                  </li>
+                  {% else %}
+                  <li class="page-item disabled">
+                    <span class="page-link">Previous</span>
+                  </li>
+                  {% endif %}
+      
+                  {% for page_num in notices.paginator.page_range %}
+                  <li class="page-item {% if page_num == notices.number %}active{% endif %}">
+                    <a class="page-link" href="?page={{ page_num }}">{{ page_num }}</a>
+                  </li>
+                  {% endfor %}
+      
+                  {% if notices.has_next %}
+                  <li class="page-item">
+                    <a class="page-link" href="?page={{ notices.next_page_number }}">Next</a>
+                  </li>
+                  {% else %}
+                  <li class="page-item disabled">
+                    <span class="page-link">Next</span>
+                  </li>
+                  {% endif %}
+                </ul>
+              </nav>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      
+      
     </div>
-    {% endif %}
-    {% endfor %}
 
 
     <script>

@@ -106,6 +106,7 @@ def request_withdrawal(request):
         amount = Decimal(request.POST.get('amount', 0.0))
         account_number = request.POST.get('account_number', '').strip()
         account_details = request.POST.get('account_details', '').strip()
+        payment_method = request.POST.get('payment_method', '').strip()
 
         if amount <= 0:
             messages.error(request, "Invalid withdrawal amount.")
@@ -117,6 +118,7 @@ def request_withdrawal(request):
             UserBalanceWithdrawal.objects.create(
                 user=request.user,
                 amount=amount,
+                payment_method=payment_method,
                 account_number=account_number,
                 account_details=account_details
             )
@@ -126,3 +128,24 @@ def request_withdrawal(request):
     return render(request, 'withdrawal_form.html', {
         'withdrawals': withdrawals
     })
+
+
+@login_required
+def Profile(request):
+    if request.method == 'POST':
+        user = request.user
+        user.first_name = request.POST.get('first_name', user.first_name)
+        user.last_name = request.POST.get('last_name', user.last_name)
+        user.phone_number = request.POST.get('phoneNumber', user.phone_number)
+        user.address = request.POST.get('address', user.address)
+        user.country = request.POST.get('country', user.country)
+        user.city = request.POST.get('city', user.city)
+        user.post_code = request.POST.get('postCode', user.post_code)
+        
+        if 'avatar' in request.FILES:
+            user.avatar = request.FILES['avatar']
+        
+        user.save()
+        messages.success(request, "Your profile has been updated successfully.")
+        return redirect('account:profile')
+    return render(request, 'account/profile.html')

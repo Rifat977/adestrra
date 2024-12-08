@@ -13,11 +13,11 @@
     <!-- Display Messages -->
     <div class="mb-4">
       {% if messages %}
-        <div class="alert alert-primary">
-          {% for message in messages %}
-            <p>{{ message }}</p>
-          {% endfor %}
-        </div>
+      <div class="alert alert-primary">
+        {% for message in messages %}
+        <p>{{ message }}</p>
+        {% endfor %}
+      </div>
       {% endif %}
     </div>
 
@@ -29,39 +29,32 @@
           {% csrf_token %}
           <div class="mb-3">
             <label for="withdrawalAmount" class="form-label">Withdrawal Amount</label>
-            <input 
-              type="number" 
-              class="form-control" 
-              id="withdrawalAmount" 
-              name="amount" 
-              step="0.01" 
-              min="0" 
-              placeholder="Enter amount" 
-              required>
+            <input type="number" class="form-control" id="withdrawalAmount" name="amount" step="0.01" min="0"
+              placeholder="Enter amount" required>
+          </div>
+
+          <div class="mb-3">
+            <label for="accountNumber" class="form-label">Payment Method</label>
+            <select name="payment_method" class="form-control" id="payment_method">
+              <option value="Paypal">Paypal</option>
+              <option value="Payoneer">Payoneer</option>
+              <option value="Binance">Binance</option>
+              <option value="Bank">Bank</option>
+              <option value="Others">Others</option>
+            </select>
           </div>
 
           <!-- New Account Number Field -->
           <div class="mb-3">
             <label for="accountNumber" class="form-label">Account Number</label>
-            <input 
-              type="text" 
-              class="form-control" 
-              id="accountNumber" 
-              name="account_number" 
-              placeholder="Enter your account number" 
-              required>
+            <input type="text" class="form-control" id="accountNumber" name="account_number"
+              placeholder="Enter your account number" required>
           </div>
 
-          <!-- New Account Details Field -->
           <div class="mb-3">
             <label for="accountDetails" class="form-label">Account Details</label>
-            <textarea 
-              class="form-control" 
-              id="accountDetails" 
-              name="account_details" 
-              rows="3" 
-              placeholder="Enter your bank name, branch, or any other details" 
-              required></textarea>
+            <textarea class="form-control" id="accountDetails" name="account_details" rows="3"
+              placeholder="Enter your bank name, branch, or any other details" required></textarea>
           </div>
 
           <div class="mb-3 text-center">
@@ -73,43 +66,43 @@
 
     <!-- Previous Withdrawal Requests -->
     {% if withdrawals %}
-      <div class="card shadow-sm">
-        <h5 class="card-header">Previous Withdrawal Requests</h5>
-        <div class="table-responsive">
-          <table class="table table-hover table-striped">
-            <thead>
-              <tr>
-                <th scope="col">Date</th>
-                <th scope="col">Amount</th>
-                <th scope="col">Status</th>
-                <th scope="col">Note</th>
-              </tr>
-            </thead>
-            <tbody>
-              {% for withdrawal in withdrawals %}
-                <tr>
-                  <td>{{ withdrawal.requested_at|date:"F j, Y, g:i a" }}</td>
-                  <td>${{ withdrawal.amount }}</td>
-                  <td>
-                    {% if withdrawal.status == 'PENDING' %}
-                      <span class="badge bg-warning">{{ withdrawal.status }}</span>
-                    {% elif withdrawal.status == 'APPROVED' %}
-                      <span class="badge bg-primary">{{ withdrawal.status }}</span>
-                    {% else %}
-                      <span class="badge bg-danger">{{ withdrawal.status }}</span>
-                    {% endif %}
-                  </td>
-                  <td>
-                    {{withdrawal.admin_note}}
-                  </td>
-                </tr>
-              {% endfor %}
-            </tbody>
-          </table>
-        </div>
+    <div class="card shadow-sm">
+      <h5 class="card-header">Previous Withdrawal Requests</h5>
+      <div class="table-responsive">
+        <table class="table table-hover table-striped">
+          <thead>
+            <tr>
+              <th scope="col">Date</th>
+              <th scope="col">Amount</th>
+              <th scope="col">Status</th>
+              <th scope="col">Note</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for withdrawal in withdrawals %}
+            <tr>
+              <td>{{ withdrawal.requested_at|date:"F j, Y, g:i a" }}</td>
+              <td>${{ withdrawal.amount }}</td>
+              <td>
+                {% if withdrawal.status == 'PENDING' %}
+                <span class="badge bg-warning">{{ withdrawal.status }}</span>
+                {% elif withdrawal.status == 'APPROVED' %}
+                <span class="badge bg-primary">{{ withdrawal.status }}</span>
+                {% else %}
+                <span class="badge bg-danger">{{ withdrawal.status }}</span>
+                {% endif %}
+              </td>
+              <td>
+                {{withdrawal.admin_note}}
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
       </div>
+    </div>
     {% else %}
-      <div class="alert alert-secondary mt-4">No previous withdrawal requests.</div>
+    <div class="alert alert-secondary mt-4">No previous withdrawal requests.</div>
     {% endif %}
   </div>
 

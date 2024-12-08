@@ -4,7 +4,7 @@ from .models import *
 from django.contrib import messages
 
 
-admin.site.unregister(Group)
+# admin.site.unregister(Group)
 
 class CustomUserDisplay(admin.ModelAdmin):
     list_display = ('username', 'first_name', 'last_name', 'email', 'is_verified', 'is_approved', 'date_joined')
@@ -31,12 +31,12 @@ admin.site.register(CustomUser, CustomUserDisplay)
 
 @admin.register(UserBalanceWithdrawal)
 class UserBalanceWithdrawalAdmin(admin.ModelAdmin):
-    list_display = ('user', 'amount', 'status', 'requested_at', 'processed_at', 'account_number', 'admin_note')
+    list_display = ('user', 'amount', 'status', 'requested_at', 'processed_at', 'payment_method', 'account_number', 'admin_note')
     list_filter = ('status', 'requested_at')
     search_fields = ('user__username', 'user__email')
     readonly_fields = ('requested_at', 'processed_at')
 
-    fields = ('user', 'amount', 'status', 'requested_at', 'processed_at', 'account_number', 'account_details', 'admin_note')
+    fields = ('user', 'amount', 'status', 'requested_at', 'processed_at', 'payment_method', 'account_number', 'account_details', 'admin_note')
 
     actions = ['approve_withdrawals', 'decline_withdrawals']
 
@@ -60,3 +60,17 @@ class UserBalanceWithdrawalAdmin(admin.ModelAdmin):
 
     approve_withdrawals.short_description = "Approve selected withdrawals"
     decline_withdrawals.short_description = "Decline selected withdrawals"
+
+
+@admin.register(Settings)
+class SettingsAdmin(admin.ModelAdmin):
+    list_display = ('domain', 'api_key', 'email', 'skype', 'commission')
+    search_fields = ('domain', 'api_key',)
+
+    
+    def has_add_permission(self, request):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+

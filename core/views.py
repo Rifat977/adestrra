@@ -10,7 +10,7 @@ import requests
 import geoip2.database
 from django.db import transaction
 from django.db.models import F
-
+from django.core.paginator import Paginator
 
 
 # Create your views here.
@@ -21,12 +21,60 @@ def dashboard(request):
     placements = PublisherPlacement.objects.all()
     user_links = PlacementLink.objects.filter(user=request.user)
     generated_links = {link.placement_id: link.link for link in user_links}
+    setting = Settings.objects.first()
+
+    latest_notice = Notice.objects.filter(is_active=True).order_by('-created_at').first()
+    notices = Notice.objects.filter(is_active=True).exclude(id=latest_notice.id).order_by('-created_at')
+
+    paginator = Paginator(notices, 5) 
+    page_number = request.GET.get('page')
+    notices = paginator.get_page(page_number)
+
+    grouped_statistics = ( AdStatistics.objects.filter(user=request.user).values('placement__title').annotate(
+            total_impressions=Sum('impressions'),
+            total_revenue=Sum('revenue')
+        ).order_by('-total_revenue') 
+    )
+    statistics = AdStatistics.objects.filter(user=request.user).order_by('-id')
+
+    chart_data = {
+        "placements": [item["placement__title"] for item in grouped_statistics],
+        "series": [
+            {
+                "name": "Impressions",
+                "data": [item["total_impressions"] for item in grouped_statistics],
+            },
+            {
+                "name": "Revenue",
+                "data": [item["total_revenue"] for item in grouped_statistics],
+            },
+        ],
+    }
+
+    total_impressions = sum(item["total_impressions"] for item in grouped_statistics)
+
+    total_revenue = sum(item["total_revenue"] for item in grouped_statistics)
 
     context = {
         'placements': placements,
         'generated_links': generated_links,
+        'setting': setting,
+        'latest_notice': latest_notice,
+        'notices': notices,
+
+        'grouped_statistics': grouped_statistics,
+        'chart_data': chart_data,
+        'total_impressions': total_impressions,
+        'total_revenue' : total_revenue,
+        'statistics' : statistics
     }
+    
     return render(request, 'dashboard.html', context)
+
+@login_required
+def notice_detail(request, notice_id):
+    notice = get_object_or_404(Notice, id=notice_id, is_active=True)
+    return render(request, 'notice_detail.html', {'notice': notice})
 
 @login_required
 def direct_link(request):
@@ -110,12 +158,7 @@ def generate_link(request):
 @transaction.atomic
 def update_ad_statistics(placement_link, country_code, user):
     try:
-        country_revenue = CountryRevenue.objects.filter(country=country_code).first()
-        if not country_revenue:
-            country_revenue = CountryRevenue.objects.filter(is_universal=True).first()
-
-        total_revenue = country_revenue.revenue if country_revenue else 0.0
-        print(total_revenue)
+        total_revenue = 0
 
         if not placement_link:
             print(f"User {user.username} is not linked to placement {placement_link.placement.title}. No updates made.")

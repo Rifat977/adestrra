@@ -3,12 +3,12 @@ from django.contrib.auth.models import User
 from django.utils import timezone
 import uuid
 from django.urls import reverse
-from django.conf import settings
 
 from django_countries.fields import CountryField
 from decimal import Decimal
 
 from django.contrib.auth import get_user_model
+from account.models import Settings
 
 User = get_user_model()
 
@@ -22,6 +22,7 @@ class PublisherPlacement(models.Model):
     image = models.ImageField(upload_to="placements/images/", blank=True, null=True) 
     alias = models.CharField(max_length=255, blank=True, null=True)
     direct_url = models.URLField(blank=True, null=True)
+    is_active = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
@@ -38,9 +39,10 @@ class PlacementLink(models.Model):
 
     def save(self, *args, **kwargs):
         if not self.link: 
+            settings = Settings.objects.first()
             unique_id = uuid.uuid4()  
             relative_url = reverse('core:redirect_to_ad', kwargs={'placement_id': self.placement.id, 'unique_id': unique_id})
-            domain = settings.SITE_URL
+            domain = settings.domain
             self.link = f"{domain}{relative_url}"
         super().save(*args, **kwargs)
 
@@ -59,30 +61,6 @@ class AdStatistics(models.Model):
         return f"{self.user.username} - {self.placement.title} - {self.date}"
 
 
-class CountryRevenue(models.Model):
-    country = CountryField() 
-    impressions = models.PositiveIntegerField(default=0) 
-    revenue = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal('0.00'))
-    is_universal = models.BooleanField(default=False)  
-
-    class Meta:
-        unique_together = ('country',)
-
-    def save(self, *args, **kwargs):
-        if self.is_universal:
-            existing = CountryRevenue.objects.filter(is_universal=True).exclude(pk=self.pk).first()
-            if existing:
-                existing.revenue = self.revenue
-                existing.impressions = self.impressions
-                existing.save()
-                return  
-        super().save(*args, **kwargs)
-
-
-
-    def __str__(self):
-        return f"Country: {self.country} | Revenue: ${self.revenue} | Impressions: {self.impressions}"
-
     
 class VisitorLog(models.Model):
     placement_link = models.ForeignKey(PlacementLink, on_delete=models.CASCADE, related_name="visitor_logs")
@@ -97,3 +75,26 @@ class VisitorLog(models.Model):
         return f"IP: {self.ip_address} | {self.visited_at}"
 
 
+from django.utils.translation import gettext_lazy as _
+from django.utils.timezone import now
+
+class Notice(models.Model):
+    title = models.CharField(max_length=255, verbose_name=_("Title"))
+    description = models.TextField(verbose_name=_("Description"), help_text=_("Detailed notice text"))
+    image = models.ImageField(
+        upload_to='notices/',
+        blank=True,
+        null=True,
+        verbose_name=_("Image"),
+        help_text=_("Optional image for the notice")
+    )
+    is_active = models.BooleanField(default=True, verbose_name=_("Active"))
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name=_("Created At"))
+
+    class Meta:
+        verbose_name = _("Notice")
+        verbose_name_plural = _("Notices")
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return self.title

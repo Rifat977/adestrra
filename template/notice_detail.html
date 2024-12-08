@@ -1,0 +1,32 @@
+{% extends 'partials/base.html' %}
+{% load static %}
+
+{% block title %}Notice Details{% endblock %}
+
+{% block content %}
+<div class="content-wrapper">
+  <!-- Content -->
+
+  <div class="container-xxl flex-grow-1 container-p-y">
+
+<div class="container mt-4">
+  <div class="card">
+    <div class="card-body">
+      <h3 class="card-title">{{ notice.title }}</h3>
+      <p class="text-muted">Published on {{ notice.created_at|date:"M d, Y" }}</p>
+      {% if notice.image %}
+      <img src="{{ notice.image.url }}" alt="{{ notice.title }}" class="img-fluid rounded mb-3" />
+      {% endif %}
+      <p>{{ notice.description }}</p>
+      <a href="{% url 'core:dashboard' %}" class="btn btn-primary">Back to Dashboard</a>
+    </div>
+  </div>
+</div>
+
+    
+  </div>
+  <!-- / Content -->
+
+
+</div>
+{% endblock %}

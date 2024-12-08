@@ -2,12 +2,11 @@ from django.contrib import admin
 import requests
 from .models import *
 from django.utils.timezone import now
-from django.conf import settings
 
 @admin.register(PublisherPlacement)
 class PublisherPlacementAdmin(admin.ModelAdmin):
-    list_display = ('id', 'domain_id', 'title', 'alias', 'direct_url')
-    search_fields = ('title', 'alias', 'domain_id')
+    list_display = ('id', 'domain_id', 'title', 'alias', 'is_active')
+    search_fields = ('title', 'alias', 'domain_id', 'is_active')
     
     
     def get_queryset(self, request):
@@ -15,13 +14,18 @@ class PublisherPlacementAdmin(admin.ModelAdmin):
         return super().get_queryset(request)
 
     def fetch_publisher_placements(self):
+        settings = Settings.objects.first()
+
+        api_key = settings.api_key
+
         api_url = "https://api3.adsterratools.com/publisher/placements.json"
         headers = {
             'Accept': 'application/json',
-            'X-API-Key': settings.API_KEY,
+            'X-API-Key': api_key,
         }
 
         response = requests.get(api_url, headers=headers)
+        print(response.json())
 
         if response.status_code == 200:
             data = response.json().get("items", [])
@@ -64,5 +68,5 @@ class VisitorLogAdmin(admin.ModelAdmin):
 
 admin.site.register(AdStatistics, AdStatisticsAdmin)
 admin.site.register(PlacementLink, PlacementLinkAdmin)
-admin.site.register(CountryRevenue)
 admin.site.register(VisitorLog, VisitorLogAdmin)
+admin.site.register(Notice)

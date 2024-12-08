@@ -13,6 +13,12 @@ class CustomUser(AbstractUser):
     is_verified = models.BooleanField(default=False)
     is_approved = models.BooleanField(default=False)
     balance = models.FloatField(default=0.0)
+    avatar = models.ImageField(upload_to='avatars/', blank=True)
+    phone_number = models.CharField(max_length=20, blank=True, null=True)
+    address = models.CharField(max_length=200, blank=True, null=True)
+    country = models.CharField(max_length=100, blank=True, null=True)
+    city = models.CharField(max_length=100, blank=True, null=True)
+    post_code = models.CharField(max_length=20, blank=True, null=True)
     email_verification_token = models.CharField(max_length=100, blank=True, null=True)
     email_verification_sent_at = models.DateTimeField(null=True, blank=True)
 
@@ -58,9 +64,18 @@ class UserBalanceWithdrawal(models.Model):
         ('DECLINED', 'Declined'),
     ]
 
+    PAYMENT_METHOD = [
+        ('Paypal', 'Paypal'),
+        ('Payoneer', 'Payoneer'),
+        ('Binance', 'Binance'),
+        ('Bank', 'Bank'),
+        ('Others', 'Others'),
+    ]
+
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='withdrawals')
     amount = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal('0.00'))
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='PENDING')
+    payment_method = models.CharField(max_length=10, choices=PAYMENT_METHOD, default='Paypal')
     requested_at = models.DateTimeField(auto_now_add=True)
     processed_at = models.DateTimeField(null=True, blank=True)
     admin_note = models.TextField(null=True, blank=True)
@@ -103,3 +118,15 @@ class UserBalanceWithdrawal(models.Model):
             self.admin_note = note
 
             self.save(update_fields=['status', 'processed_at', 'admin_note'])  
+
+
+class Settings(models.Model):
+    domain = models.CharField(max_length=255)
+    api_key = models.CharField(max_length=255)
+    commission = models.IntegerField(default=0)
+    email = models.EmailField(unique=True, null=True, blank=True)
+    skype = models.CharField(max_length=255, null=True, blank=True)
+    notice = models.TextField(null=True, blank=True)
+
+    def __str__(self):
+        return self.domain
