@@ -51,7 +51,7 @@ class AdStatistics(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="ad_statistics")
     date = models.DateField(default=timezone.now)
     impressions = models.IntegerField(default=0)
-    revenue = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal('0.00'))
+    revenue = models.DecimalField(max_digits=10, decimal_places=4, default=float('0.00'))
 
 
     class Meta:

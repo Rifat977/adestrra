@@ -4,17 +4,22 @@ from .models import *
 from django.utils import timezone
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
-from django.conf import settings
 from datetime import timedelta
 import requests
 import geoip2.database
 from django.db import transaction
-from django.db.models import F
 from django.core.paginator import Paginator
+
+from decimal import Decimal
+from django.db.models import Sum, F
+from datetime import date
 
 
 # Create your views here.
 # 23943b6bc3d4b6b68e10ea32ec72a3c4
+
+def index(request):
+    return render(request, 'index.html')
 
 @login_required
 def dashboard(request):
@@ -156,37 +161,76 @@ def generate_link(request):
 
 
 @transaction.atomic
-def update_ad_statistics(placement_link, country_code, user):
+def update_ad_statistics(placement_link, user):
     try:
-        total_revenue = 0
-
-        if not placement_link:
-            print(f"User {user.username} is not linked to placement {placement_link.placement.title}. No updates made.")
+        settings = Settings.objects.first()
+        if not settings:
+            print("Settings not found. Please configure your settings.")
             return
+
+        api_key = settings.api_key
+        start_date = "2024-10-10"
+        finish_date = date.today().isoformat()
+
+        api_url = (
+            f"https://api3.adsterratools.com/publisher/stats.json"
+            f"?placement={placement_link.placement.id}&start_date={start_date}&finish_date={finish_date}&group_by=placement"
+        )
+        headers = {'Accept': 'application/json', 'X-API-Key': api_key}
+        response = requests.get(api_url, headers=headers)
+
+        if response.status_code != 200:
+            print(f"API request failed with status code {response.status_code}: {response.text}")
+            return
+
+        data = response.json().get("items", [])
+        if not data:
+            print("No data returned from the API.")
+            return
+
+        total_revenue = sum(Decimal(item['revenue']) for item in data)
+        admin_commission = Decimal(settings.commission)
+        commission_amount = total_revenue * (admin_commission / 100)
+        distributable_revenue = total_revenue - commission_amount
+
+        ad_statistics = AdStatistics.objects.filter(placement_id=placement_link.placement.id)
+
+        aggregated_stats = defaultdict(lambda: {"impressions": 0, "revenue": Decimal(0)})
+        for stat in ad_statistics:
+            key = stat.user.id
+            aggregated_stats[key]["impressions"] += stat.impressions
+            aggregated_stats[key]["revenue"] += stat.revenue
+
+        total_impressions = sum(data["impressions"] for data in aggregated_stats.values())
+        if total_impressions == 0:
+            print("No impressions recorded for this placement. Revenue cannot be distributed.")
+            return
+
+        revenue_per_impression = distributable_revenue / total_impressions
 
         ad_stat, created = AdStatistics.objects.get_or_create(
             placement=placement_link.placement,
+            date=date.today(),
             user=user,
-            defaults={"revenue": 0.0, "impressions": 0},
+            defaults={"revenue": Decimal(0), "impressions": 0},
         )
-
-        ad_stat.revenue = F('revenue') + total_revenue
-        ad_stat.impressions += 1
+        ad_stat.revenue = F('revenue') + revenue_per_impression
+        ad_stat.impressions = F('impressions') + 1
         ad_stat.save()
 
-        updated_stat = AdStatistics.objects.get(id=ad_stat.id)
-        print(f"Updated in DB: Revenue - {updated_stat.revenue}, Impressions - {updated_stat.impressions}")
-        print(f"Successfully updated statistics for placement: {placement_link.placement.title} | Country: {country_code}")
+        print(f"Updated in DB: Revenue - {ad_stat.revenue}, Impressions - {ad_stat.impressions}")
+        print(f"Successfully updated statistics for placement: {placement_link.placement.title}")
 
-        
         return redirect(placement_link.direct_url)
 
     except Exception as e:
-        print(f"Error updating revenue for user {user.username}: {str(e)}")
+        print(f"{user.username}: {str(e)}")
+
 
 
 
 def get_country_from_ip(ip_address):
+    from django.conf import settings
     geoip_db_path = settings.BASE_DIR / 'GeoLite2-Country.mmdb'
     try:
         with geoip2.database.Reader(str(geoip_db_path)) as reader:
@@ -212,17 +256,16 @@ def track_visit(request, placement_link, user):
     user_agent = request.META.get('HTTP_USER_AGENT', None)
 
     country_code = get_country_from_ip(ip_address)
-    # country_code = 'BD'
 
     print(f"Visitor IP: {ip_address}, Country Code: {country_code}")
 
-    if proxy is None and country_code and not is_duplicate_visitor(placement_link, ip_address):
+    if proxy is None and not is_duplicate_visitor(placement_link, ip_address):
         VisitorLog.objects.create(
             placement_link=placement_link,
             ip_address=ip_address,
             user_agent=user_agent,
         )
-        return country_code
+        return True
 
     print(f"Invalid or duplicate visit detected: IP {ip_address}, Proxy: {proxy}")
     return False
@@ -238,7 +281,7 @@ def redirect_to_ad(request, placement_id, unique_id):
     track_visit_result = track_visit(request, placement_link, user)
 
     if track_visit_result:
-        update_ad_statistics(placement_link, track_visit_result, user)
+        update_ad_statistics(placement_link, user)
         return redirect(placement.direct_url)
 
     return JsonResponse({"message": "Disallowed user detected"}, status=403)

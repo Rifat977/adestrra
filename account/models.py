@@ -130,3 +130,24 @@ class Settings(models.Model):
 
     def __str__(self):
         return self.domain
+
+class AdminRevenueStatistics(models.Model):
+    date = models.DateField(auto_now_add=True) 
+    total_revenue = models.DecimalField(max_digits=15, decimal_places=4, default=Decimal('0.00'))
+    publisher_revenue = models.DecimalField(max_digits=15, decimal_places=4, default=Decimal('0.00'))
+    admin_revenue = models.DecimalField(max_digits=15, decimal_places=4, default=Decimal('0.00'))
+    total_impressions = models.PositiveBigIntegerField(default=0)
+
+    class Meta:
+        verbose_name = "Admin Revenue Statistics"
+        verbose_name_plural = "Admin Revenue Statistics"
+        ordering = ['-date']
+
+    def __str__(self):
+        return f"Statistics for {self.date}"
+
+    # @property
+    # def admin_commission_percentage(self):
+    #     if self.total_revenue > 0:
+    #         return (self.admin_revenue / self.total_revenue) * 100
+    #     return 0

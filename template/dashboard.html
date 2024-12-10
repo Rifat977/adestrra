@@ -32,7 +32,7 @@
               <span>Total Impressions</span>
             </div>
             <div class="d-flex flex-column align-items-center gap-1">
-              <h2 class="mb-2">${{ total_revenue|floatformat:2 }}</h2>
+              <h2 class="mb-2">${{ total_revenue|floatformat:4 }}</h2>
               <span>Total Revenue</span>
             </div>
           </div>
@@ -52,7 +52,7 @@
                     <small class="text-muted">Impressions: {{ item.total_impressions }}</small>
                   </div>
                   <div class="user-progress">
-                    <small class="fw-semibold">Revenue: ${{ item.total_revenue|floatformat:2 }}</small>
+                    <small class="fw-semibold">Revenue: ${{ item.total_revenue|floatformat:4 }}</small>
                   </div>
                 </div>
               </li>
