@@ -19,7 +19,14 @@ from datetime import date
 # 23943b6bc3d4b6b68e10ea32ec72a3c4
 
 def index(request):
-    return render(request, 'index.html')
+    return render(request, 'landing/index.html')
+
+def contact(request):
+    setting = Settings.objects.first()
+    context = {
+        'setting' : setting
+    }
+    return render(request, 'landing/contact-us.html', context)
 
 @login_required
 def dashboard(request):

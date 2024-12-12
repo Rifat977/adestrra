@@ -27,6 +27,9 @@ class PublisherPlacement(models.Model):
 
     def __str__(self):
         return self.title
+    
+    class Meta:
+        verbose_name_plural = "Publisher Smart Link"
 
 class PlacementLink(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -36,6 +39,7 @@ class PlacementLink(models.Model):
 
     class Meta:
         unique_together = ('user', 'placement')
+        verbose_name_plural = "User Smart Link"
 
     def save(self, *args, **kwargs):
         if not self.link: 

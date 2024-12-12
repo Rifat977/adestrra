@@ -9,6 +9,11 @@ from decimal import Decimal
 
 
 class CustomUser(AbstractUser):
+    STATUS_CHOICES = [
+        ('Active', 'Active'),
+        ('Inactive', 'Inactive'),
+        ('Reject', 'Reject'),
+    ]
     email = models.EmailField(unique=True)
     is_verified = models.BooleanField(default=False)
     is_approved = models.BooleanField(default=False)
@@ -21,6 +26,9 @@ class CustomUser(AbstractUser):
     post_code = models.CharField(max_length=20, blank=True, null=True)
     email_verification_token = models.CharField(max_length=100, blank=True, null=True)
     email_verification_sent_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        verbose_name_plural = "User Management"
 
     # def is_email_verification_token_expired(self):
     #     if self.email_verification_sent_at:
@@ -86,7 +94,7 @@ class UserBalanceWithdrawal(models.Model):
     class Meta:
         ordering = ['-requested_at']
         verbose_name = "User Balance Withdrawal"
-        verbose_name_plural = "User Balance Withdrawals"
+        verbose_name_plural = "Withdraw Request"
 
     def __str__(self):
         return f"User: {self.user.username} | Amount: ${self.amount} | Status: {self.status}"
@@ -130,6 +138,9 @@ class Settings(models.Model):
 
     def __str__(self):
         return self.domain
+
+    class Meta:
+        verbose_name_plural = "Site Settings"
 
 class AdminRevenueStatistics(models.Model):
     date = models.DateField(auto_now_add=True) 

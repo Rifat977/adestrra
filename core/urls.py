@@ -12,4 +12,6 @@ urlpatterns = [
     path('generate-link/', views.generate_link, name='generate_link'),
 
     path('notice/<int:notice_id>/', views.notice_detail, name='notice_detail'),
+    
+    path('contact/', views.contact, name="contact"),
 ]
