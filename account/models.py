@@ -128,6 +128,17 @@ class UserBalanceWithdrawal(models.Model):
             self.save(update_fields=['status', 'processed_at', 'admin_note'])  
 
 
+from urllib.parse import urlparse, urlunparse
+
+
+def format_url(url):
+    parsed_url = urlparse(url)
+    formatted_path = parsed_url.path.rstrip('/')
+    formatted_url = urlunparse(
+        parsed_url._replace(path=formatted_path)
+    )
+    return formatted_url
+
 class Settings(models.Model):
     domain = models.CharField(max_length=255)
     api_key = models.CharField(max_length=255)
@@ -135,6 +146,11 @@ class Settings(models.Model):
     email = models.EmailField(unique=True, null=True, blank=True)
     skype = models.CharField(max_length=255, null=True, blank=True)
     notice = models.TextField(null=True, blank=True)
+
+    def save(self, *args, **kwargs):
+        if self.domain:
+            self.domain = format_url(self.domain)
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return self.domain

@@ -278,9 +278,9 @@ def track_visit(request, placement_link, user):
     return False
 
 
-def redirect_to_ad(request, placement_id, unique_id):
+def redirect_to_ad(request, placement_id, unique_id, subid):
     placement_link = get_object_or_404(
-        PlacementLink, placement_id=placement_id, link__contains=unique_id
+        PlacementLink, placement_id=placement_id, link__contains=str(unique_id)
     )
     placement = placement_link.placement
     user = placement_link.user
@@ -292,3 +292,4 @@ def redirect_to_ad(request, placement_id, unique_id):
         return redirect(placement.direct_url)
 
     return JsonResponse({"message": "Disallowed user detected"}, status=403)
+

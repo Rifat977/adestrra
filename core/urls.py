@@ -5,7 +5,7 @@ app_name = "core"
 
 urlpatterns = [
     path('', views.index, name="index"),
-    path('smartlink/<int:placement_id>/<uuid:unique_id>/', views.redirect_to_ad, name='redirect_to_ad'),
+    path('smartlink/<int:placement_id>/<uuid:unique_id>/<slug:subid>/', views.redirect_to_ad, name='redirect_to_ad'),
     path('dashboard/', views.dashboard, name="dashboard"),
     path('smartlinks/', views.direct_link, name="direct_link"),
     path('statistics/', views.statistics, name="statistics"),

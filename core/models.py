@@ -9,8 +9,21 @@ from decimal import Decimal
 
 from django.contrib.auth import get_user_model
 from account.models import Settings
+from django.utils.text import slugify
+from urllib.parse import urlparse, urlunparse
+
 
 User = get_user_model()
+
+
+def format_url(url):
+    parsed_url = urlparse(url)
+    formatted_path = parsed_url.path.rstrip('/')
+    formatted_url = urlunparse(
+        parsed_url._replace(path=formatted_path)
+    )
+    return formatted_url
+
 
 
 # Create your models here.
@@ -46,7 +59,13 @@ class PlacementLink(models.Model):
         if not self.link: 
             settings = Settings.objects.first()
             unique_id = uuid.uuid4()  
-            relative_url = reverse('core:redirect_to_ad', kwargs={'placement_id': self.placement.id, 'unique_id': unique_id})
+            self.subid = slugify(self.subid)
+            # relative_url = reverse('core:redirect_to_ad', kwargs={'placement_id': self.placement.id, 'unique_id': unique_id, 'slug': self.subid})
+            relative_url = reverse('core:redirect_to_ad', kwargs={
+                'placement_id': self.placement.id,
+                'unique_id': unique_id,
+                'subid': self.subid 
+            })
             domain = settings.domain
             self.link = f"{domain}{relative_url}"
         super().save(*args, **kwargs)
