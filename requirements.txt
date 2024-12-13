@@ -13,6 +13,7 @@ geoip2==4.8.1
 idna==3.10
 maxminddb==2.6.2
 multidict==6.1.0
+mysqlclient==2.2.6
 pillow==11.0.0
 propcache==0.2.1
 requests==2.32.3
