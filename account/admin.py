@@ -9,25 +9,39 @@ import requests
 
 # admin.site.unregister(Group)
 
+
+from django.contrib import admin
+from .models import CustomUser
+
 class CustomUserDisplay(admin.ModelAdmin):
-    list_display = ('username', 'first_name', 'last_name', 'email', 'is_verified', 'is_approved', 'date_joined')
+    list_display = ('username', 'first_name', 'last_name', 'email', 'is_approved', 'date_joined')
     search_fields = ('username', 'email')
     list_filter = ('is_verified', 'is_approved', ('date_joined', admin.DateFieldListFilter))
-    list_editable = ('is_approved',)  
+    list_editable = ('is_approved',)
     
-    actions = ['approve_users', 'disapprove_users']
+    actions = ['approve_users', 'reject_users']
+
+    def get_readonly_fields(self, request, obj=None):
+        if request.user.groups.filter(name='Admin').exists():
+            return [field.name for field in self.model._meta.fields if field.name != 'is_approved'] + ['user_permissions', 'groups']
+        return super().get_readonly_fields(request, obj)
+
+    def has_change_permission(self, request, obj=None):
+        if request.user.groups.filter(name='Admin').exists():
+            return True
+        return super().has_change_permission(request, obj)
 
     def approve_users(self, request, queryset):
-        updated_count = queryset.update(is_approved=True)
+        updated_count = queryset.update(is_approved='Active')
         self.message_user(request, f"{updated_count} user(s) successfully approved.")
 
     approve_users.short_description = "Approve selected users"
 
-    def disapprove_users(self, request, queryset):
-        updated_count = queryset.update(is_approved=False)
-        self.message_user(request, f"{updated_count} user(s) successfully disapproved.")
+    def reject_users(self, request, queryset):
+        updated_count = queryset.update(is_approved='Reject')  
+        self.message_user(request, f"{updated_count} user(s) successfully rejected.")
 
-    disapprove_users.short_description = "Disapprove selected users"
+    reject_users.short_description = "Reject selected users"
 
 admin.site.register(CustomUser, CustomUserDisplay)
 
@@ -85,7 +99,7 @@ from django.db.models import Sum
 
 @admin.register(AdminRevenueStatistics)
 class AdminRevenueStatisticsAdmin(admin.ModelAdmin):
-    list_display = ('date', 'total_revenue', 'publisher_revenue', 'admin_revenue', 'total_impressions')
+    list_display = ('total_revenue', 'publisher_revenue', 'admin_revenue', 'total_impressions')
     list_filter = ('date',)
 
     def get_queryset(self, request):
@@ -107,7 +121,7 @@ class AdminRevenueStatisticsAdmin(admin.ModelAdmin):
 
         placement_links = PlacementLink.objects.all()
         if not placement_links.exists():
-            self.message_user(request, "No placement links found. Please ensure placements are configured.", level="error")
+            # self.message_user(request, "No placement links found.", level="warning")
             return
 
         for placement_link in placement_links:
@@ -160,7 +174,6 @@ class AdminRevenueStatisticsAdmin(admin.ModelAdmin):
         publisher_revenue = total_revenue - admin_revenue
 
         AdminRevenueStatistics.objects.update_or_create(
-            date=date.today(),
             defaults={
                 'total_revenue': total_revenue,
                 'publisher_revenue': publisher_revenue,

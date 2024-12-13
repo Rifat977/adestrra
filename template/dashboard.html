@@ -77,6 +77,11 @@
                     <button class="btn btn-sm btn-primary copy-link-btn" data-link="{{ generated_links|dict_key:placement.id }}">Copy Link</button>
                   </div>
                   {% else %}
+                  <select name="" class="form-control subid mt-2" id="{{ placement.id }}">
+                    <option value="">Choose Sub.</option>
+                    <option value="Facebook">Facebook</option>
+                    <option value="Blog">Blog</option>
+                  </select>
                   <button class="btn btn-sm btn-primary generate-link-btn mt-2" data-placement-id="{{ placement.id }}">Generate Link</button>
                   {% endif %}
                 </p>
@@ -171,6 +176,11 @@
           buttons.forEach(button => {
               button.addEventListener("click", function () {
                   const placementId = this.getAttribute("data-placement-id");
+                  const subid = document.getElementById(placementId)
+                  if(subid.value==""){
+                    alert("Please choose the subid")
+                    return
+                  }
                   const button = this;
     
                   fetch("{% url 'core:generate_link' %}", {
@@ -179,18 +189,19 @@
                           "X-CSRFToken": "{{ csrf_token }}",
                           "Content-Type": "application/x-www-form-urlencoded"
                       },
-                      body: new URLSearchParams({ placement_id: placementId })
+                      body: new URLSearchParams({ placement_id: placementId, subid: subid.value })
                   })
                   .then(response => response.json())
                   .then(data => {
                       if (data.link) {
                           const parent = button.parentElement;
                           button.remove();
+                          subid.remove();
     
                           const linkSection = document.createElement("div");
                           linkSection.innerHTML = `
-                              <button class="btn btn-sm btn-danger" disabled>Generated</button>
-                              <button class="btn btn-sm btn-primary copy-link-btn" data-link="${data.link}">Copy Link</button>
+                              <button class="btn btn-sm btn-danger mt-2" disabled>Generated</button>
+                              <button class="btn btn-sm btn-primary copy-link-btn mt-2" data-link="${data.link}">Copy Link</button>
                           `;
                           parent.appendChild(linkSection);
     

@@ -35,6 +35,7 @@ class PlacementLink(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     placement = models.ForeignKey(PublisherPlacement, on_delete=models.CASCADE)
     link = models.URLField(max_length=1024, null=True, blank=True)  
+    subid = models.CharField(max_length=255)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -60,6 +61,7 @@ class AdStatistics(models.Model):
 
     class Meta:
         unique_together = ('placement', 'user', 'date')
+        verbose_name_plural = "User Statistics"
 
     def __str__(self):
         return f"{self.user.username} - {self.placement.title} - {self.date}"

@@ -58,7 +58,7 @@ class AdStatisticsAdmin(admin.ModelAdmin):
     list_filter = ('placement', 'date', 'user')
 
 class PlacementLinkAdmin(admin.ModelAdmin):
-    list_display = ('user', 'placement', 'link')
+    list_display = ('user', 'placement', 'subid', 'link')
     search_fields = ('user__username', 'placement__title')
 
 class VisitorLogAdmin(admin.ModelAdmin):

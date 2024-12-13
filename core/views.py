@@ -33,7 +33,6 @@ def dashboard(request):
     placements = PublisherPlacement.objects.all()
     user_links = PlacementLink.objects.filter(user=request.user)
     generated_links = {link.placement_id: link.link for link in user_links}
-    setting = Settings.objects.first()
 
     latest_notice = Notice.objects.filter(is_active=True).order_by('-created_at').first()
     notices = Notice.objects.filter(is_active=True).exclude(id=latest_notice.id).order_by('-created_at')
@@ -70,7 +69,6 @@ def dashboard(request):
     context = {
         'placements': placements,
         'generated_links': generated_links,
-        'setting': setting,
         'latest_notice': latest_notice,
         'notices': notices,
 
@@ -146,6 +144,7 @@ def statistics(request):
 def generate_link(request):
     if request.method == "POST":
         placement_id = request.POST.get("placement_id")
+        subid = request.POST.get("subid")
         if not placement_id:
             return JsonResponse({"error": "Placement ID is required."}, status=400)
 
@@ -156,6 +155,7 @@ def generate_link(request):
 
         placement_link, created = PlacementLink.objects.get_or_create(
             user=request.user,
+            subid=subid,
             placement=placement
         )
 

@@ -26,3 +26,7 @@ def user_balance_processor(request):
             request.user.save(update_fields=["balance"])
 
     return {'user_balance': user_balance}
+
+def setting_processor(request):
+    setting = Settings.objects.first()
+    return {'setting': setting}

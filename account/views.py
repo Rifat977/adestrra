@@ -36,8 +36,7 @@ def register(request):
                 username=username,
                 email=email,
                 password=password,
-                is_verified=False,
-                is_approved=False,
+                is_verified=True,
                 balance=0.0,
                 email_verification_token=get_random_string(50),
                 email_verification_sent_at=now(),
@@ -81,7 +80,7 @@ def user_login(request):
             user = authenticate(request, username=email, password=password)
 
             if user:
-                if user.is_verified and user.is_approved:
+                if user.is_verified and user.is_approved == 'Active':
                     login(request, user)
                     print(f"Debug: User logged in - {user.username}")  
                     messages.success(request, "Login successful!")

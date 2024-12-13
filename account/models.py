@@ -16,7 +16,7 @@ class CustomUser(AbstractUser):
     ]
     email = models.EmailField(unique=True)
     is_verified = models.BooleanField(default=False)
-    is_approved = models.BooleanField(default=False)
+    is_approved = models.CharField(max_length=10, choices=STATUS_CHOICES, default='Inactive')
     balance = models.FloatField(default=0.0)
     avatar = models.ImageField(upload_to='avatars/', blank=True)
     phone_number = models.CharField(max_length=20, blank=True, null=True)
