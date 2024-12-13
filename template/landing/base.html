@@ -38,12 +38,18 @@
           <li class="nav-item">
             <a class="nav-link" href="{% url 'core:contact' %}">Contact</a>
           </li>
-          <li class="nav-item">
-            <a class="nav-link" href="#digital-marketing-section">Login</a>  
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="#digital-marketing-section">Register</a>  
-          </li>
+          {% if request.user.is_authenticated %}
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'core:dashboard' %}">Dashboard</a>  
+            </li>
+          {% else %}
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'account:login' %}">Login</a>  
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'account:register' %}">Register</a>  
+            </li>
+          {% endif %}
         </ul>
       </div>
     </div> 
