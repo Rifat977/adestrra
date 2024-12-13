@@ -102,6 +102,12 @@ class AdminRevenueStatisticsAdmin(admin.ModelAdmin):
     list_display = ('total_revenue', 'publisher_revenue', 'admin_revenue', 'total_impressions')
     list_filter = ('date',)
 
+    def has_add_permission(self, request):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
     def get_queryset(self, request):
         self.update_statistics_for_all_placements(request)
         return super().get_queryset(request)
