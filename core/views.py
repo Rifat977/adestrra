@@ -35,17 +35,25 @@ def dashboard(request):
     generated_links = {link.placement_id: link.link for link in user_links}
 
     latest_notice = Notice.objects.filter(is_active=True).order_by('-created_at').first()
-    notices = Notice.objects.filter(is_active=True).exclude(id=latest_notice.id).order_by('-created_at')
+    notices = Notice.objects.filter(is_active=True)
+    if latest_notice:
+        notices = notices.exclude(id=latest_notice.id)
+    notices = notices.order_by('-created_at')
 
     paginator = Paginator(notices, 5) 
     page_number = request.GET.get('page')
     notices = paginator.get_page(page_number)
 
-    grouped_statistics = ( AdStatistics.objects.filter(user=request.user).values('placement__title').annotate(
-            total_impressions=Sum('impressions'),
-            total_revenue=Sum('revenue')
-        ).order_by('-total_revenue') 
-    )
+    grouped_statistics = AdStatistics.objects.filter(user=request.user).values(
+        'placement__title'
+    ).annotate(
+        total_impressions=Sum('impressions'),
+        total_revenue=Sum('revenue')
+    ).order_by('-total_revenue')
+
+    if not grouped_statistics.exists():
+        grouped_statistics = []
+
     statistics = AdStatistics.objects.filter(user=request.user).order_by('-id')
 
     chart_data = {
@@ -53,33 +61,32 @@ def dashboard(request):
         "series": [
             {
                 "name": "Impressions",
-                "data": [item["total_impressions"] for item in grouped_statistics],
+                "data": [item.get("total_impressions", 0) or 0 for item in grouped_statistics],
             },
             {
                 "name": "Revenue",
-                "data": [item["total_revenue"] for item in grouped_statistics],
+                "data": [item.get("total_revenue", 0) or 0 for item in grouped_statistics],
             },
         ],
     }
 
-    total_impressions = sum(item["total_impressions"] for item in grouped_statistics)
-
-    total_revenue = sum(item["total_revenue"] for item in grouped_statistics)
+    total_impressions = sum(item.get("total_impressions", 0) or 0 for item in grouped_statistics)
+    total_revenue = sum(item.get("total_revenue", 0) or 0 for item in grouped_statistics)
 
     context = {
         'placements': placements,
         'generated_links': generated_links,
         'latest_notice': latest_notice,
         'notices': notices,
-
         'grouped_statistics': grouped_statistics,
         'chart_data': chart_data,
         'total_impressions': total_impressions,
-        'total_revenue' : total_revenue,
-        'statistics' : statistics
+        'total_revenue': total_revenue,
+        'statistics': statistics
     }
     
     return render(request, 'dashboard.html', context)
+
 
 @login_required
 def notice_detail(request, notice_id):

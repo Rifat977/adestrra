@@ -85,11 +85,11 @@ class SettingsAdmin(admin.ModelAdmin):
     search_fields = ('domain', 'api_key',)
 
     
-    def has_add_permission(self, request):
-        return False
+    # def has_add_permission(self, request):
+    #     return False
 
-    def has_delete_permission(self, request, obj=None):
-        return False
+    # def has_delete_permission(self, request, obj=None):
+    #     return False
 
 
 

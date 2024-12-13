@@ -101,5 +101,20 @@
         </a>
       </li>
 
+      {% url 'account:profile' as profile_url %}
+      <li class="menu-item {% if request.path == profile_url %}active{% endif %}">
+        <a href="{% url 'account:profile' %}" class="menu-link">
+          <i class="menu-icon tf-icons bx bx-user"></i>
+          <div data-i18n="Analytics">Profile</div>
+        </a>
+      </li>
+
+      <li class="menu-item">
+        <a href="{% url 'core:contact' %}" class="menu-link">
+          <i class="menu-icon tf-icons bx bx-phone"></i>
+          <div data-i18n="Analytics">Contact Us</div>
+        </a>
+      </li>
+
     </ul>
   </aside>
