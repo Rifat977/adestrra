@@ -85,11 +85,11 @@ class SettingsAdmin(admin.ModelAdmin):
     search_fields = ('domain', 'api_key',)
 
     
-    # def has_add_permission(self, request):
-    #     return False
+    def has_add_permission(self, request):
+        return False
 
-    # def has_delete_permission(self, request, obj=None):
-    #     return False
+    def has_delete_permission(self, request, obj=None):
+        return False
 
 
 
@@ -101,12 +101,13 @@ from django.db.models import Sum
 class AdminRevenueStatisticsAdmin(admin.ModelAdmin):
     list_display = ('total_revenue', 'publisher_revenue', 'admin_revenue', 'total_impressions')
     list_filter = ('date',)
+    search_fields = ('date',)
 
     def has_add_permission(self, request):
         return False
 
-    def has_delete_permission(self, request, obj=None):
-        return False
+    # def has_delete_permission(self, request, obj=None):
+    #     return False
 
     def get_queryset(self, request):
         self.update_statistics_for_all_placements(request)

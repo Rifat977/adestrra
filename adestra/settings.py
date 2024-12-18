@@ -20,6 +20,7 @@ AUTHENTICATION_BACKENDS = [
 
 INSTALLED_APPS = [
     'jazzmin',
+    'rangefilter',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -75,9 +76,9 @@ WSGI_APPLICATION = 'adestra.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'shambhdn_cparobust',
-        'USER': 'shambhdn_cparobust',
-        'PASSWORD': 'Cparobust@2024',
+        'NAME': 'cparobust',
+        'USER': 'user1',
+        'PASSWORD': 'password1',
         'HOST': 'localhost', 
         'PORT': '3306',     
         'OPTIONS': {
