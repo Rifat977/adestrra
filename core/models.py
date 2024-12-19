@@ -11,6 +11,10 @@ from django.contrib.auth import get_user_model
 from account.models import Settings
 from django.utils.text import slugify
 from urllib.parse import urlparse, urlunparse
+from ckeditor.fields import RichTextField
+from django.utils.translation import gettext_lazy as _
+from django.utils.timezone import now
+
 
 
 User = get_user_model()
@@ -44,11 +48,29 @@ class PublisherPlacement(models.Model):
     class Meta:
         verbose_name_plural = "Publisher Smart Link"
 
+class SubID(models.Model):
+    name = models.CharField(max_length=255, verbose_name=_("Name"))
+    slug = models.CharField(max_length=255, null=True, blank=True)
+    is_active = models.BooleanField(default=True, verbose_name=_("Active"))
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name=_("Created At"))
+
+    def save(self, *args, **kwargs):
+        self.slug = slugify(self.name)
+        super().save(*args, **kwargs)
+
+    class Meta:
+        verbose_name = _("SubID")
+        verbose_name_plural = _("SubIDs")
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return self.name
+
 class PlacementLink(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     placement = models.ForeignKey(PublisherPlacement, on_delete=models.CASCADE)
     link = models.URLField(max_length=1024, null=True, blank=True)  
-    subid = models.CharField(max_length=255)
+    subid = models.ForeignKey(SubID, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -59,12 +81,10 @@ class PlacementLink(models.Model):
         if not self.link: 
             settings = Settings.objects.first()
             unique_id = uuid.uuid4()  
-            self.subid = slugify(self.subid)
-            # relative_url = reverse('core:redirect_to_ad', kwargs={'placement_id': self.placement.id, 'unique_id': unique_id, 'slug': self.subid})
             relative_url = reverse('core:redirect_to_ad', kwargs={
                 'placement_id': self.placement.id,
                 'unique_id': unique_id,
-                'subid': self.subid 
+                'subid' : self.subid.slug
             })
             domain = settings.domain
             self.link = f"{domain}{relative_url}"
@@ -100,12 +120,11 @@ class VisitorLog(models.Model):
         return f"IP: {self.ip_address} | {self.visited_at}"
 
 
-from django.utils.translation import gettext_lazy as _
-from django.utils.timezone import now
+
 
 class Notice(models.Model):
     title = models.CharField(max_length=255, verbose_name=_("Title"))
-    description = models.TextField(verbose_name=_("Description"), help_text=_("Detailed notice text"))
+    description = RichTextField(verbose_name=_("Description"), help_text=_("Detailed notice text"))
     image = models.ImageField(
         upload_to='notices/',
         blank=True,

@@ -139,6 +139,7 @@ def format_url(url):
     )
     return formatted_url
 
+
 class Settings(models.Model):
     domain = models.CharField(max_length=255)
     api_key = models.CharField(max_length=255)

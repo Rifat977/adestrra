@@ -11,7 +11,7 @@
 
   <div class="container-xxl flex-grow-1 container-p-y">
 
-    <h5 class="pb-1 mb-4">Ads</h5>
+    <!-- <h5 class="pb-1 mb-4">Ads</h5> -->
 
   
     <div class="row mb-5">
@@ -60,50 +60,12 @@
             </ul>
           </div>
         </div>
-
-        {% for placement in placements %}
-        {% if placement.direct_url and placement.is_active %}
-        <div class="card mb-3">
-          <div class="row g-0 align-items-center">
-            <div class="col-md-8">
-              <div class="card-body">
-                <h5 class="card-title">{{ placement.title }}</h5>
-                <p class="card-text">
-                  {{ placement.description }}
-                  <br>
-                  {% if placement.id in generated_links %}
-                  <div class="link-section mt-2">
-                    <button class="btn btn-sm btn-danger" disabled>Generated</button>
-                    <button class="btn btn-sm btn-primary copy-link-btn" data-link="{{ generated_links|dict_key:placement.id }}">Copy Link</button>
-                  </div>
-                  {% else %}
-                  <select name="" class="form-control subid mt-2" id="{{ placement.id }}">
-                    <option value="">Choose SubID</option>
-                    <option value="Facebook">Facebook</option>
-                    <option value="Blog">Blog</option>
-                  </select>
-                  <button class="btn btn-sm btn-primary generate-link-btn mt-2" data-placement-id="{{ placement.id }}">Generate Link</button>
-                  {% endif %}
-                </p>
-                <p class="card-text">
-                  <small class="text-muted">Created: {{ placement.created_at|date:"M d, Y" }}</small>
-                </p>
-              </div>
-            </div>
-            <div class="col-md-4 d-flex align-items-center justify-content-center">
-              {% if placement.image %}
-              <img class="card-img img-fluid rounded" src="{{ placement.image.url }}" alt="Placement image" style="max-height: 150px; max-width: 100%; object-fit: contain;" />
-              {% endif %}
-            </div>
-          </div>
-        </div>
-        {% endif %}
-        {% endfor %}
       </div>
       
       <div class="col-md-4">
         <div class="card">
           <!-- Latest Full Notice -->
+          {% if latest_notice %}
           <div class="card-body pb-0">
             <div class="latest-notice text-center">
               {% if latest_notice.image %}
@@ -112,9 +74,11 @@
               <img src="{% static 'assets/img/illustrations/man-with-laptop-light.png' %}" style="height: 120px;" alt="Default Notice Image" class="img-fluid rounded mb-2" />
               {% endif %}
               <h5 class="fw-bold">{{ latest_notice.title }}</h5>
-              <p class="text-muted">{{ latest_notice.description }}</p>
+              <p class="text-muted">{{ latest_notice.description|safe|truncatechars:152 }}</p>
+              <a class="btn btn-sm btn-primary mb-3" href="{% url 'core:notice_detail' latest_notice.id %}">Read More</a>
             </div>
           </div>
+          {% endif %}
           <hr class="m-0">
           <!-- Notice List -->
           <div class="card-body pt-2">
@@ -167,95 +131,6 @@
       
       
     </div>
-
-
-    <script>
-      document.addEventListener("DOMContentLoaded", function () {
-          const buttons = document.querySelectorAll(".generate-link-btn");
-          
-          buttons.forEach(button => {
-              button.addEventListener("click", function () {
-                  const placementId = this.getAttribute("data-placement-id");
-                  const subid = document.getElementById(placementId)
-                  if(subid.value==""){
-                    alert("Please choose the subid")
-                    return
-                  }
-                  const button = this;
-    
-                  fetch("{% url 'core:generate_link' %}", {
-                      method: "POST",
-                      headers: {
-                          "X-CSRFToken": "{{ csrf_token }}",
-                          "Content-Type": "application/x-www-form-urlencoded"
-                      },
-                      body: new URLSearchParams({ placement_id: placementId, subid: subid.value })
-                  })
-                  .then(response => response.json())
-                  .then(data => {
-                      if (data.link) {
-                          const parent = button.parentElement;
-                          button.remove();
-                          subid.remove();
-    
-                          const linkSection = document.createElement("div");
-                          linkSection.innerHTML = `
-                              <button class="btn btn-sm btn-danger mt-2" disabled>Generated</button>
-                              <button class="btn btn-sm btn-primary copy-link-btn mt-2" data-link="${data.link}">Copy Link</button>
-                          `;
-                          parent.appendChild(linkSection);
-    
-                          const copyButton = parent.querySelector(".copy-link-btn");
-                          copyButton.addEventListener("click", function () {
-                              navigator.clipboard.writeText(data.link).then(() => {
-                                  copyButton.textContent = "Copied!";
-                                  copyButton.classList.remove("btn-primary");
-                                  copyButton.classList.add("btn-info");
-    
-                                  setTimeout(() => {
-                                      copyButton.textContent = "Copy Link";
-                                      copyButton.classList.remove("btn-info");
-                                      copyButton.classList.add("btn-primary");
-                                  }, 2000);
-                              }).catch(err => console.error("Failed to copy:", err));
-                          });
-                      } else if (data.error) {
-                          alert(`Error: ${data.error}`);
-                      }
-                  })
-                  .catch(error => {
-                      console.error("Error:", error);
-                  });
-              });
-          });
-      });
-
-      document.addEventListener("DOMContentLoaded", function () {
-        const copyButtons = document.querySelectorAll(".copy-link-btn");
-    
-        copyButtons.forEach(button => {
-          button.addEventListener("click", function () {
-            const link = this.getAttribute("data-link");
-    
-            navigator.clipboard.writeText(link).then(() => {
-              this.textContent = "Copied!";
-              this.classList.remove("btn-primary");
-              this.classList.add("btn-info");
-    
-              setTimeout(() => {
-                this.textContent = "Copy Link";
-                this.classList.remove("btn-info");
-                this.classList.add("btn-primary");
-              }, 2000);
-            }).catch(err => {
-              console.error("Failed to copy text: ", err);
-            });
-          });
-        });
-      });
-    </script>
-    
-
     
   </div>
   <!-- / Content -->

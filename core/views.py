@@ -14,6 +14,8 @@ from decimal import Decimal
 from django.db.models import Sum, F
 from datetime import date
 
+from account.models import AdminRevenueStatistics
+
 
 # Create your views here.
 # 23943b6bc3d4b6b68e10ea32ec72a3c4
@@ -96,9 +98,16 @@ def notice_detail(request, notice_id):
 @login_required
 def direct_link(request):
     placement_links = PlacementLink.objects.filter(user=request.user)
+    placements = PublisherPlacement.objects.all()
+    user_links = PlacementLink.objects.filter(user=request.user)
+    generated_links = {link.placement_id: link.link for link in user_links}
+    subids = SubID.objects.all()
     
     context = {
         'placement_links' : placement_links,
+        'placements': placements,
+        'generated_links': generated_links,
+        'subids' : subids
     }
     return render(request, 'direct-link.html', context)
 
@@ -151,7 +160,8 @@ def statistics(request):
 def generate_link(request):
     if request.method == "POST":
         placement_id = request.POST.get("placement_id")
-        subid = request.POST.get("subid")
+        sub_id = request.POST.get("subid")
+        subid = SubID.objects.get(id=int(sub_id))
         if not placement_id:
             return JsonResponse({"error": "Placement ID is required."}, status=400)
 
@@ -198,43 +208,52 @@ def update_ad_statistics(placement_link, user):
             return
 
         data = response.json().get("items", [])
-        if not data:
-            print("No data returned from the API.")
-            return
+        print(data)
+        for item in data:
+            cpm = Decimal(item.get('cpm', 0))  # Safely get 'cpm' from the dictionary
+            revenue_per_impression = cpm / 1000
+            print('revenue_per_impression', revenue_per_impression)
 
-        total_revenue = sum(Decimal(item['revenue']) for item in data)
-        admin_commission = Decimal(settings.commission)
-        commission_amount = total_revenue * (admin_commission / 100)
-        distributable_revenue = total_revenue - commission_amount
+            admin_commission = Decimal(settings.commission)
+            commission_amount = revenue_per_impression * (admin_commission / 100)
+            print('admin commission', commission_amount)
 
-        ad_statistics = AdStatistics.objects.filter(placement_id=placement_link.placement.id)
+            publisher_revenue_per_impression = revenue_per_impression - commission_amount
+            print('after tax publisher_revenue_per_impression', publisher_revenue_per_impression)
 
-        aggregated_stats = defaultdict(lambda: {"impressions": 0, "revenue": Decimal(0)})
-        for stat in ad_statistics:
-            key = stat.user.id
-            aggregated_stats[key]["impressions"] += stat.impressions
-            aggregated_stats[key]["revenue"] += stat.revenue
+            ad_stat, created = AdStatistics.objects.get_or_create(
+                placement=placement_link.placement,
+                date=date.today(),
+                user=user,
+                defaults={"revenue": Decimal(0), "impressions": 0},
+            )
+            ad_stat.revenue = F('revenue') + revenue_per_impression
+            ad_stat.impressions = F('impressions') + 1
+            ad_stat.save()
 
-        total_impressions = sum(data["impressions"] for data in aggregated_stats.values())
-        if total_impressions == 0:
-            print("No impressions recorded for this placement. Revenue cannot be distributed.")
-            return
+            print(f"Updated in DB: Revenue - {ad_stat.revenue}, Impressions - {ad_stat.impressions}")
 
-        revenue_per_impression = distributable_revenue / total_impressions
+            admin_stats, created = AdminRevenueStatistics.objects.get_or_create(
+                date=date.today(),
+                defaults={
+                    "total_revenue": Decimal(0),
+                    "publisher_revenue": Decimal(0),
+                    "admin_revenue": Decimal(0),
+                    "total_impressions": 0,
+                },
+            )
+            admin_stats.total_revenue = F('total_revenue') + revenue_per_impression
+            admin_stats.publisher_revenue = F('publisher_revenue') + publisher_revenue_per_impression
+            admin_stats.admin_revenue = F('admin_revenue') + commission_amount
+            admin_stats.total_impressions = F('total_impressions') + 1
+            admin_stats.save()
 
-        ad_stat, created = AdStatistics.objects.get_or_create(
-            placement=placement_link.placement,
-            date=date.today(),
-            user=user,
-            defaults={"revenue": Decimal(0), "impressions": 0},
-        )
-        ad_stat.revenue = F('revenue') + revenue_per_impression
-        ad_stat.impressions = F('impressions') + 1
-        ad_stat.save()
+            print(f"Admin stats updated: Total Revenue - {admin_stats.total_revenue}, "
+                  f"Publisher Revenue - {admin_stats.publisher_revenue}, "
+                  f"Admin Revenue - {admin_stats.admin_revenue}, "
+                  f"Total Impressions - {admin_stats.total_impressions}")
 
-        print(f"Updated in DB: Revenue - {ad_stat.revenue}, Impressions - {ad_stat.impressions}")
         print(f"Successfully updated statistics for placement: {placement_link.placement.title}")
-
         return redirect(placement_link.direct_url)
 
     except Exception as e:
@@ -273,13 +292,14 @@ def track_visit(request, placement_link, user):
 
     print(f"Visitor IP: {ip_address}, Country Code: {country_code}")
 
-    if proxy is None and not is_duplicate_visitor(placement_link, ip_address):
-        VisitorLog.objects.create(
-            placement_link=placement_link,
-            ip_address=ip_address,
-            user_agent=user_agent,
-        )
-        return True
+    # if proxy is None and not is_duplicate_visitor(placement_link, ip_address):
+    #     VisitorLog.objects.create(
+    #         placement_link=placement_link,
+    #         ip_address=ip_address,
+    #         user_agent=user_agent,
+    #     )
+    #     return True
+    return True
 
     print(f"Invalid or duplicate visit detected: IP {ip_address}, Proxy: {proxy}")
     return False

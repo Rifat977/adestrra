@@ -29,7 +29,17 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'core',
     'account',
+    'ckeditor'
 ]
+
+CKEDITOR_CONFIGS = {
+    'default': {
+        'toolbar': 'full',
+        'height': 300,
+        'width': 'auto',
+    },
+}
+
 
 ENABLE_ACTIONS = True
 
@@ -76,9 +86,9 @@ WSGI_APPLICATION = 'adestra.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'shambhdn_cparobust',
-        'USER': 'shambhdn_cparobust',
-        'PASSWORD': 'Cparobust@2024',
+        'NAME': 'cparobust',
+        'USER': 'user1',
+        'PASSWORD': 'password1',
         'HOST': 'localhost', 
         'PORT': '3306',     
         'OPTIONS': {
