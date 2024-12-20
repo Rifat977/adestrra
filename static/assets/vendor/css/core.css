@@ -6614,8 +6614,8 @@ label.btn {
 
 .btn-danger {
   color: #fff;
-  background-color: #ff3e1d;
-  border-color: #ff3e1d;
+  background-color: #dd494b;
+  border-color: #dd494b;
   box-shadow: 0 0.125rem 0.25rem 0 rgba(255, 62, 29, 0.4);
 }
 .btn-danger:hover {
@@ -6644,8 +6644,8 @@ label.btn {
 }
 
 .btn-outline-danger {
-  color: #ff3e1d;
-  border-color: #ff3e1d;
+  color: #dd494b;
+  border-color: #dd494b;
   background: transparent;
 }
 .btn-outline-danger:hover {
@@ -6675,8 +6675,8 @@ label.btn {
 }
 
 .btn-outline-danger .badge {
-  background: #ff3e1d;
-  border-color: #ff3e1d;
+  background: #dd494b;
+  border-color: #dd494b;
   color: #fff;
 }
 
@@ -6687,7 +6687,7 @@ label.btn {
 .show > .btn-outline-danger.dropdown-toggle .badge {
   background: #fff;
   border-color: #fff;
-  color: #ff3e1d;
+  color: #dd494b;
 }
 
 .btn-light {

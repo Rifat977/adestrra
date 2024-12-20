@@ -13,55 +13,118 @@
 
     <!-- <h5 class="pb-1 mb-4">Ads</h5> -->
 
-  
+
     <div class="row mb-5">
-      
+
       <div class="col-md-8">
 
-        <div class="card mb-3">
-          <div class="card-header d-flex align-items-center justify-content-center pb-0">
-            <div class="card-title mb-0 text-center justify-content-center">
-              <h5 class="m-0 me-2">Ads Statistics</h5>
-              <small class="text-muted">Total Impressions and Revenue</small>
+        <div class="col mb-4">
+          <div class="card h-100">
+            <!-- Card Header with Navigation -->
+            <div class="card-header">
+              <ul class="nav nav-pills justify-content-center" role="tablist">
+                <li class="nav-item">
+                  <button
+                    type="button"
+                    class="nav-link active"
+                    role="tab"
+                    data-bs-toggle="tab"
+                    data-bs-target="#navs-tabs-weekly"
+                    aria-controls="navs-tabs-weekly"
+                    aria-selected="true"
+                  >
+                    Weekly
+                  </button>
+                </li>
+                <li class="nav-item">
+                  <button
+                    type="button"
+                    class="nav-link"
+                    role="tab"
+                    data-bs-toggle="tab"
+                    data-bs-target="#navs-tabs-monthly"
+                    aria-controls="navs-tabs-monthly"
+                    aria-selected="false"
+                  >
+                    Monthly
+                  </button>
+                </li>
+              </ul>
+            </div>
+        
+            <!-- Card Body -->
+            <div class="card-body">
+              <div class="tab-content">
+                <!-- Weekly Tab -->
+                <div
+                  class="tab-pane fade show active"
+                  id="navs-tabs-weekly"
+                  role="tabpanel"
+                >
+                  <canvas id="weeklyChart" class="chart-container"></canvas>
+                </div>
+        
+                <!-- Monthly Tab -->
+                <div
+                  class="tab-pane fade"
+                  id="navs-tabs-monthly"
+                  role="tabpanel"
+                >
+                  <canvas id="monthlyChart" class="chart-container"></canvas>
+                </div>
+              </div>
             </div>
           </div>
+        </div>
+        
+        
 
-          <div class="d-flex justify-content-between align-items-center p-3">
-            <div class="d-flex flex-column align-items-center gap-1">
-              <h2 class="mb-2">{{ total_impressions }}</h2>
-              <span>Total Impressions</span>
+        <div class="col mb-4">
+          <div class="card">
+            <div class="card-header d-flex align-items-center justify-content-center pb-0">
+              <div class="card-title mb-0 text-center justify-content-center">
+                <h5 class="m-0 me-2">Ads Statistics</h5>
+                <small class="text-muted">Total Impressions and Revenue</small>
+              </div>
             </div>
-            <div class="d-flex flex-column align-items-center gap-1">
-              <h2 class="mb-2">${{ total_revenue|floatformat:4 }}</h2>
-              <span>Total Revenue</span>
-            </div>
-          </div>
 
-          <div class="card-body">
-            <ul class="p-0 m-0">
-              {% for item in grouped_statistics %}
-              <li class="d-flex mb-4 pb-1">
-                <div class="avatar flex-shrink-0 me-3">
-                  <span class="avatar-initial rounded bg-label-primary">
-                    <i class="bx bx-bar-chart-alt"></i>
-                  </span>
-                </div>
-                <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
-                  <div class="me-2">
-                    <h6 class="mb-0">{{ item.placement__title }}</h6>
-                    <small class="text-muted">Impressions: {{ item.total_impressions }}</small>
+            <div class="d-flex justify-content-between align-items-center p-3">
+              <div class="d-flex flex-column align-items-center gap-1">
+                <h2 class="mb-2">{{ total_impressions }}</h2>
+                <span>Total Impressions</span>
+              </div>
+              <div class="d-flex flex-column align-items-center gap-1">
+                <h2 class="mb-2">${{ total_revenue|floatformat:4 }}</h2>
+                <span>Total Revenue</span>
+              </div>
+            </div>
+
+            <div class="card-body">
+              <ul class="p-0 m-0">
+                {% for item in grouped_statistics %}
+                <li class="d-flex mb-4 pb-1">
+                  <div class="avatar flex-shrink-0 me-3">
+                    <span class="avatar-initial rounded bg-label-primary">
+                      <i class="bx bx-bar-chart-alt"></i>
+                    </span>
                   </div>
-                  <div class="user-progress">
-                    <small class="fw-semibold">Revenue: ${{ item.total_revenue|floatformat:4 }}</small>
+                  <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
+                    <div class="me-2">
+                      <h6 class="mb-0">{{ item.placement__title }}</h6>
+                      <small class="text-muted">Impressions: {{ item.total_impressions }}</small>
+                    </div>
+                    <div class="user-progress">
+                      <small class="fw-semibold">Revenue: ${{ item.total_revenue|floatformat:4 }}</small>
+                    </div>
                   </div>
-                </div>
-              </li>
-              {% endfor %}
-            </ul>
+                </li>
+                {% endfor %}
+              </ul>
+            </div>
           </div>
         </div>
       </div>
-      
+
       <div class="col-md-4">
         <div class="card">
           <!-- Latest Full Notice -->
@@ -69,13 +132,15 @@
           <div class="card-body pb-0">
             <div class="latest-notice text-center">
               {% if latest_notice.image %}
-              <img src="{{ latest_notice.image.url }}" alt="{{ latest_notice.title }}" style="height: 120px;" class="img-fluid rounded mb-2" />
+              <img src="{{ latest_notice.image.url }}" alt="{{ latest_notice.title }}" style="height: 120px;"
+                class="img-fluid rounded mb-2" />
               {% else %}
-              <img src="{% static 'assets/img/illustrations/man-with-laptop-light.png' %}" style="height: 120px;" alt="Default Notice Image" class="img-fluid rounded mb-2" />
+              <img src="{% static 'assets/img/illustrations/man-with-laptop-light.png' %}" style="height: 120px;"
+                alt="Default Notice Image" class="img-fluid rounded mb-2" />
               {% endif %}
               <h5 class="fw-bold">{{ latest_notice.title }}</h5>
               <p class="text-muted">{{ latest_notice.description|safe|truncatechars:152 }}</p>
-              <a class="btn btn-sm btn-primary mb-3" href="{% url 'core:notice_detail' latest_notice.id %}">Read More</a>
+              <a class="btn btn-sm btn-danger mb-3" href="{% url 'core:notice_detail' latest_notice.id %}">Read More</a>
             </div>
           </div>
           {% endif %}
@@ -85,7 +150,8 @@
             <ul class="list-group list-group-flush">
               {% for notice in notices %}
               <li class="list-group-item">
-                <a href="{% url 'core:notice_detail' notice.id %}" class="text-decoration-none text-dark">{{ notice.title }}</a>
+                <a href="{% url 'core:notice_detail' notice.id %}" class="text-decoration-none text-dark">{{
+                  notice.title }}</a>
                 <span class="text-muted float-end">{{ notice.created_at|date:"M d, Y" }}</span>
               </li>
               {% empty %}
@@ -105,13 +171,13 @@
                     <span class="page-link">Previous</span>
                   </li>
                   {% endif %}
-      
+
                   {% for page_num in notices.paginator.page_range %}
                   <li class="page-item {% if page_num == notices.number %}active{% endif %}">
                     <a class="page-link" href="?page={{ page_num }}">{{ page_num }}</a>
                   </li>
                   {% endfor %}
-      
+
                   {% if notices.has_next %}
                   <li class="page-item">
                     <a class="page-link" href="?page={{ notices.next_page_number }}">Next</a>
@@ -127,14 +193,120 @@
           </div>
         </div>
       </div>
-      
-      
-      
+
+
+
     </div>
-    
+
   </div>
   <!-- / Content -->
 
 
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+const chartData = JSON.parse('{{ chart_data_2|escapejs }}');
+
+const weeklyChartCtx = document.getElementById('weeklyChart').getContext('2d');
+new Chart(weeklyChartCtx, {
+  type: 'line',
+  data: {
+    labels: chartData.weekly_labels,
+    datasets: [
+      {
+        label: 'Impressions',
+        data: chartData.weekly_series[0].data,
+        borderColor: 'rgba(75, 192, 192, 1)',
+        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+        fill: true,
+      },
+      {
+        label: 'Revenue',
+        data: chartData.weekly_series[1].data,
+        borderColor: 'rgba(153, 102, 255, 1)',
+        backgroundColor: 'rgba(153, 102, 255, 0.2)',
+        fill: true,
+      },
+    ],
+  },
+  options: {
+    responsive: true,
+    plugins: {
+      legend: {
+        display: true,
+      },
+      tooltip: {
+        enabled: true,
+      },
+    },
+    scales: {
+      x: {
+        title: {
+          display: true,
+          text: 'Dates (Last 7 Days)',
+        },
+      },
+      y: {
+        title: {
+          display: true,
+          text: 'Values',
+        },
+        beginAtZero: true,
+      },
+    },
+  },
+});
+
+const monthlyChartCtx = document.getElementById('monthlyChart').getContext('2d');
+new Chart(monthlyChartCtx, {
+  type: 'line',
+  data: {
+    labels: chartData.monthly_labels,
+    datasets: [
+      {
+        label: 'Impressions',
+        data: chartData.monthly_series[0].data,
+        borderColor: 'rgba(54, 162, 235, 1)',
+        backgroundColor: 'rgba(54, 162, 235, 0.2)',
+        fill: true,
+      },
+      {
+        label: 'Revenue',
+        data: chartData.monthly_series[1].data,
+        borderColor: 'rgba(255, 159, 64, 1)',
+        backgroundColor: 'rgba(255, 159, 64, 0.2)',
+        fill: true,
+      },
+    ],
+  },
+  options: {
+    responsive: true,
+    plugins: {
+      legend: {
+        display: true,
+      },
+      tooltip: {
+        enabled: true,
+      },
+    },
+    scales: {
+      x: {
+        title: {
+          display: true,
+          text: 'Dates (Last 30 Days)',
+        },
+      },
+      y: {
+        title: {
+          display: true,
+          text: 'Values',
+        },
+        beginAtZero: true,
+      },
+    },
+  },
+});
+
+</script>
 {% endblock %}

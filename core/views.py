@@ -16,6 +16,12 @@ from datetime import date
 
 from account.models import AdminRevenueStatistics
 
+import json
+from decimal import Decimal
+
+import datetime
+import random
+
 
 # Create your views here.
 # 23943b6bc3d4b6b68e10ea32ec72a3c4
@@ -29,6 +35,14 @@ def contact(request):
         'setting' : setting
     }
     return render(request, 'landing/contact-us.html', context)
+
+import decimal
+
+# Helper function to convert Decimal to float
+def decimal_to_float(value):
+    if isinstance(value, decimal.Decimal):
+        return float(value)
+    return value
 
 @login_required
 def dashboard(request):
@@ -46,6 +60,7 @@ def dashboard(request):
     page_number = request.GET.get('page')
     notices = paginator.get_page(page_number)
 
+    # Fetch and aggregate statistics by placement for the past 7 days
     grouped_statistics = AdStatistics.objects.filter(user=request.user).values(
         'placement__title'
     ).annotate(
@@ -58,22 +73,93 @@ def dashboard(request):
 
     statistics = AdStatistics.objects.filter(user=request.user).order_by('-id')
 
+    # Generate last 7 days for weekly labels
+    today = datetime.date.today()
+    weekly_labels = [(today - datetime.timedelta(days=i)).strftime('%Y-%m-%d') for i in range(6, -1, -1)]
+
+    # Generate last 30 days for monthly labels
+    monthly_labels = [(today - datetime.timedelta(days=i)).strftime('%Y-%m-%d') for i in range(29, -1, -1)]
+
+    # Fetch actual data for the last 30 days
+    monthly_impressions = []
+    monthly_revenue = []
+    for i in range(30):
+        date = today - datetime.timedelta(days=i)
+        daily_stats = AdStatistics.objects.filter(user=request.user, date=date).aggregate(
+            total_impressions=Sum('impressions'),
+            total_revenue=Sum('revenue')
+        )
+        monthly_impressions.append(daily_stats['total_impressions'] or 0)
+        monthly_revenue.append(daily_stats['total_revenue'] or 0)
+
+    # Prepare chart data
     chart_data = {
         "placements": [item["placement__title"] for item in grouped_statistics],
         "series": [
             {
                 "name": "Impressions",
-                "data": [item.get("total_impressions", 0) or 0 for item in grouped_statistics],
+                "data": [int(item.get("total_impressions", 0) or 0) for item in grouped_statistics],
             },
             {
                 "name": "Revenue",
-                "data": [item.get("total_revenue", 0) or 0 for item in grouped_statistics],
+                "data": [decimal_to_float(item.get("total_revenue", 0) or 0) for item in grouped_statistics],
             },
         ],
     }
 
-    total_impressions = sum(item.get("total_impressions", 0) or 0 for item in grouped_statistics)
-    total_revenue = sum(item.get("total_revenue", 0) or 0 for item in grouped_statistics)
+    chart_data_2 = {
+        "weekly_labels": weekly_labels,
+        "monthly_labels": monthly_labels,
+        "weekly_series": [
+            {
+                "name": "Impressions",
+                "data": [int(item.get("total_impressions", 0) or 0) for item in grouped_statistics],
+            },
+            {
+                "name": "Revenue",
+                "data": [decimal_to_float(item.get("total_revenue", 0) or 0) for item in grouped_statistics],
+            },
+        ],
+        "monthly_series": [
+            {
+                "name": "Impressions",
+                "data": monthly_impressions,
+            },
+            {
+                "name": "Revenue",
+                "data": monthly_revenue,
+            },
+        ],
+    }
+
+    total_impressions = sum(int(item.get("total_impressions", 0) or 0) for item in grouped_statistics)
+    total_revenue = sum(decimal_to_float(item.get("total_revenue", 0) or 0) for item in grouped_statistics)
+
+    # Convert chart_data_2's decimal values to float before passing it to json.dumps
+    chart_data_2_serializable = {
+        "weekly_labels": weekly_labels,
+        "monthly_labels": monthly_labels,
+        "weekly_series": [
+            {
+                "name": "Impressions",
+                "data": [int(item.get("total_impressions", 0) or 0) for item in grouped_statistics],
+            },
+            {
+                "name": "Revenue",
+                "data": [decimal_to_float(item.get("total_revenue", 0) or 0) for item in grouped_statistics],
+            },
+        ],
+        "monthly_series": [
+            {
+                "name": "Impressions",
+                "data": [decimal_to_float(impression) for impression in monthly_impressions],
+            },
+            {
+                "name": "Revenue",
+                "data": [decimal_to_float(revenue) for revenue in monthly_revenue],
+            },
+        ],
+    }
 
     context = {
         'placements': placements,
@@ -84,7 +170,8 @@ def dashboard(request):
         'chart_data': chart_data,
         'total_impressions': total_impressions,
         'total_revenue': total_revenue,
-        'statistics': statistics
+        'statistics': statistics,
+        'chart_data_2': json.dumps(chart_data_2_serializable),
     }
     
     return render(request, 'dashboard.html', context)
@@ -152,7 +239,7 @@ def statistics(request):
         'chart_data': chart_data,
         'total_impressions': total_impressions,
         'total_revenue' : total_revenue,
-        'statistics' : statistics
+        'statistics' : statistics,
     })
 
 

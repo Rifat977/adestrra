@@ -9,7 +9,7 @@
   <meta name="viewport"
     content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0" />
 
-  <title>{% block title %} {% endblock %} @ Ads</title>
+  <title>{% block title %} {% endblock %} | Cparobust</title>
 
   <meta name="description" content="" />
 
@@ -17,7 +17,7 @@
   <meta name="google-site-verification" content="4FCTe2tWZMeoOUFF-qh9kMJydGcPx6SMCgSBHtfwNA4" />
 
   <!-- Favicon -->
-  <link rel="icon" type="image/x-icon" href="{% static '/assets/img/favicon/favicon.ico' %}" />
+  <link rel="icon" type="image/x-icon" href="{% static 'favicon.png' %}">
 
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -41,6 +41,7 @@
   <link rel="stylesheet" href="{% static '/assets/vendor/libs/apex-charts/apex-charts.css' %}" />
 
   <!-- Page CSS -->
+
 
   <!-- Helpers -->
   <script src="{% static '/assets/vendor/js/helpers.js' %}"></script>
@@ -68,7 +69,7 @@
             </a>
           </div>
 
-          <div class="notice-container px-4 py-2 bg-primary text-white rounded shadow-sm d-none d-md-flex align-items-center col-md-10 col-xl-8">
+          <div class="notice-container px-4 py-2 text-white rounded shadow-sm d-none d-md-flex align-items-center col-md-10 col-xl-8" style="background-color: #dd494b;">
             <b class="me-3">Notice:</b>
             <marquee behavior="scroll" direction="left" class="notice-text">
               {{setting.notice}}
