@@ -23,7 +23,7 @@ CORS_ORIGIN_ALLOW_ALL = True  # or specify specific origins
 
 INSTALLED_APPS = [
     'jazzmin',
-    'rangefilter',
+    # 'rangefilter',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -60,7 +60,7 @@ ROOT_URLCONF = 'adestra.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': ['template'],
+        'DIRS': [ BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -70,6 +70,8 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
                 'account.context_processors.user_balance_processor', 
                 'account.context_processors.setting_processor', 
+                'account.context_processors.notices_processor',
+                'account.context_processors.admin_chart_processor',
             ],
             'libraries':{
             'custom_filters': 'core.templatetags.custom_filters',
@@ -80,6 +82,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'adestra.wsgi.application'
+
 
 
 # Database
@@ -101,6 +104,48 @@ DATABASES = {
         },
     }
 }
+
+
+
+
+
+
+JAZZMIN_SETTINGS = {
+    "site_title": "Cparobust",
+
+    "site_header": "Cparobust",
+
+    "site_brand": "Cparobust",
+
+    # "site_logo": "books/img/logo.png",
+
+    # "login_logo": None,
+
+    # "login_logo_dark": None,
+
+    # "site_logo_classes": "img-circle",
+
+    # "site_icon": None,
+
+    "welcome_sign": "Welcome to the cparobust",
+
+    "copyright": "Cparobust",
+
+    "hide_recent_acitons" : True,
+
+    "dashboard_links" : [
+        {"name": "Manage Users", "url": '/admin/auth/user/', 'icon': 'fas fa-user'},
+    ],
+
+
+}
+
+
+
+
+
+
+
 
 
 

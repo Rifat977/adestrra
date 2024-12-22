@@ -38,6 +38,9 @@ def contact(request):
 
 import decimal
 
+def custom_dashboard(request):
+    return render(request, 'admin/base_site.html', {})
+
 # Helper function to convert Decimal to float
 def decimal_to_float(value):
     if isinstance(value, decimal.Decimal):
@@ -60,7 +63,6 @@ def dashboard(request):
     page_number = request.GET.get('page')
     notices = paginator.get_page(page_number)
 
-    # Fetch and aggregate statistics by placement for the past 7 days
     grouped_statistics = AdStatistics.objects.filter(user=request.user).values(
         'placement__title'
     ).annotate(
@@ -73,14 +75,11 @@ def dashboard(request):
 
     statistics = AdStatistics.objects.filter(user=request.user).order_by('-id')
 
-    # Generate last 7 days for weekly labels
     today = datetime.date.today()
     weekly_labels = [(today - datetime.timedelta(days=i)).strftime('%Y-%m-%d') for i in range(6, -1, -1)]
 
-    # Generate last 30 days for monthly labels
     monthly_labels = [(today - datetime.timedelta(days=i)).strftime('%Y-%m-%d') for i in range(29, -1, -1)]
 
-    # Fetch actual data for the last 30 days
     monthly_impressions = []
     monthly_revenue = []
     for i in range(30):
@@ -92,7 +91,6 @@ def dashboard(request):
         monthly_impressions.append(daily_stats['total_impressions'] or 0)
         monthly_revenue.append(daily_stats['total_revenue'] or 0)
 
-    # Prepare chart data
     chart_data = {
         "placements": [item["placement__title"] for item in grouped_statistics],
         "series": [
@@ -135,7 +133,6 @@ def dashboard(request):
     total_impressions = sum(int(item.get("total_impressions", 0) or 0) for item in grouped_statistics)
     total_revenue = sum(decimal_to_float(item.get("total_revenue", 0) or 0) for item in grouped_statistics)
 
-    # Convert chart_data_2's decimal values to float before passing it to json.dumps
     chart_data_2_serializable = {
         "weekly_labels": weekly_labels,
         "monthly_labels": monthly_labels,
@@ -379,13 +376,13 @@ def track_visit(request, placement_link, user):
 
     print(f"Visitor IP: {ip_address}, Country Code: {country_code}")
 
-    # if proxy is None and not is_duplicate_visitor(placement_link, ip_address):
-    #     VisitorLog.objects.create(
-    #         placement_link=placement_link,
-    #         ip_address=ip_address,
-    #         user_agent=user_agent,
-    #     )
-    #     return True
+    if proxy is None and not is_duplicate_visitor(placement_link, ip_address):
+        VisitorLog.objects.create(
+            placement_link=placement_link,
+            ip_address=ip_address,
+            user_agent=user_agent,
+        )
+        return True
     return True
 
     print(f"Invalid or duplicate visit detected: IP {ip_address}, Proxy: {proxy}")

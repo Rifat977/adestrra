@@ -1,0 +1,81 @@
+{% extends 'admin/index.html' %}
+
+{% block content %}
+<div id="content-main" class="container mt-4">
+    <!-- Filter Options -->
+    <form method="get" action="{% url 'admin:index' %}">
+        <div class="row mb-3">
+            <div class="col-md-3">
+                <select name="filter_type" class="form-control" onchange="this.form.submit()">
+                    <option value="all" {% if request.GET.filter_type == 'all' %}selected{% endif %}>All Time</option>
+                    <option value="today" {% if request.GET.filter_type == 'today' %}selected{% endif %}>Today</option>
+                    <option value="yesterday" {% if request.GET.filter_type == 'yesterday' %}selected{% endif %}>Yesterday</option>
+                    <option value="last_7_days" {% if request.GET.filter_type == 'last_7_days' %}selected{% endif %}>Last 7 Days</option>
+                    <option value="custom_range" {% if request.GET.filter_type == 'custom_range' %}selected{% endif %}>Custom Range</option>
+                </select>
+            </div>
+
+            <!-- Custom Date Range Input -->
+            <div class="col-md-5" id="date-range" style="display: {% if request.GET.filter_type == 'custom_range' %}block{% else %}none{% endif %}">
+                <input type="date" name="start_date" class="form-control" placeholder="Start Date" value="{{ request.GET.start_date }}">
+                <input type="date" name="end_date" class="form-control" placeholder="End Date" value="{{ request.GET.end_date }}">
+            </div>
+            <div class="col-md-1">
+                <button type="submit" class="btn btn-primary">Filter</button>
+            </div>
+        </div>
+    </form>
+
+    <!-- Display Revenue Statistics in a single row -->
+    <div class="row">
+        <div class="col-md-3 mb-3">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">Total Revenue</h5>
+                    <p class="card-text">{{ total_revenue|floatformat:2 }}</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 mb-3">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">Publisher Revenue</h5>
+                    <p class="card-text">{{ publisher_revenue|floatformat:2 }}</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 mb-3">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">Admin Revenue</h5>
+                    <p class="card-text">{{ admin_revenue|floatformat:2 }}</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 mb-3">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">Total Impressions</h5>
+                    <p class="card-text">{{ total_impressions }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    // Show or hide date range inputs based on the selected filter
+    document.querySelector('select[name="filter_type"]').addEventListener('change', function() {
+        const dateRangeDiv = document.getElementById('date-range');
+        if (this.value === 'custom_range') {
+            dateRangeDiv.style.display = 'block';
+        } else {
+            dateRangeDiv.style.display = 'none';
+        }
+    });
+</script>
+{% endblock %}
