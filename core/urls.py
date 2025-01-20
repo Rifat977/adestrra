@@ -14,4 +14,5 @@ urlpatterns = [
     path('notice/<int:notice_id>/', views.notice_detail, name='notice_detail'),
     
     path('contact/', views.contact, name="contact"),
+    path('privacy-policy/', views.privacy, name="privacy"),
 ]

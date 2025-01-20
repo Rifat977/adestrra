@@ -36,6 +36,10 @@ def contact(request):
     }
     return render(request, 'landing/contact-us.html', context)
 
+def privacy(request):
+
+    return render(request, 'landing/privacy.html')
+
 import decimal
 
 def custom_dashboard(request):
