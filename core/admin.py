@@ -65,12 +65,12 @@ class AdStatisticsAdmin(admin.ModelAdmin):
     search_fields = ('placement__title', 'user__username', 'date')
     list_filter = ('placement', 'date', 'user')
 
-class PlacementLinkAdmin(admin.ModelAdmin):
-    list_display = ('user', 'placement', 'subid', 'link')
-    search_fields = ('user__username', 'placement__title')
+# class PlacementLinkAdmin(admin.ModelAdmin):
+#     list_display = ('user', 'placement', 'subid', 'link')
+#     search_fields = ('user__username', 'placement__title')
 
-    def has_add_permission(self, request):
-        return False
+#     def has_add_permission(self, request):
+#         return False
 
 
 
