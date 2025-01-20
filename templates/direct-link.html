@@ -35,7 +35,7 @@
               <td>{{ link.placement.title }}</td>
               <td>{{ link.subid.name }}</td>
               <td>
-                <button class="btn btn-sm btn-secondary">View Statistics</button>
+                <a href="{% url 'core:statistics' %}" class="btn btn-sm btn-secondary">View Statistics</a>
                 <button class="btn btn-sm btn-primary copy-link-btn" data-link="{{ link.link }}">Copy Link</button>
               </td>
             </tr>

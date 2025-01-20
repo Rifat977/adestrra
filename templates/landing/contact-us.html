@@ -30,7 +30,7 @@
         <div class="contact-us-bgimage grid-margin" >
           <div class="pb-2">
             <h4 class="px-3 px-md-0 m-0" data-aos="fade-down">Email</h4>
-            <h4 class="pt-1" data-aos="fade-down">{{setting.email}}</h4>
+            <h4 class="pt-1" data-aos="fade-down">{{setting.contact_page_email}}</h4>
           </div>
           <div data-aos="fade-up">
             <button class="btn btn-rounded btn-outline-danger">Send Mail</button>
@@ -39,7 +39,7 @@
         <div class="contact-us-bgimage grid-margin" >
             <div class="pb-2">
               <h4 class="px-3 px-md-0 m-0" data-aos="fade-down">Skype</h4>
-              <h4 class="pt-1" data-aos="fade-down">{{setting.skype}}</h4>
+              <h4 class="pt-1" data-aos="fade-down">{{setting.contact_page_skype}}</h4>
             </div>
             <div data-aos="fade-up">
               <button class="btn btn-rounded btn-outline-danger">Send Mail</button>
@@ -51,8 +51,8 @@
           <div class="col-12 col-md-6 col-lg-3 grid-margin">
             <img src="{% static 'logo_2.png' %}" alt="" class="pb-2">
             <div class="pt-2">
-              <p class="text-muted m-0">mikayla_beer@feil.name</p>
-              <p class="text-muted m-0">906-179-8309</p>
+              <p class="text-muted m-0">{{setting.contact_page_email}}</p>
+              <p class="text-muted m-0">{{setting.contact_page_skype}}</p>
             </div>         
           </div>
           <div class="col-12 col-md-6 col-lg-3 grid-margin">

@@ -146,6 +146,8 @@ class Settings(models.Model):
     commission = models.IntegerField(default=0)
     email = models.EmailField(unique=True, null=True, blank=True)
     skype = models.CharField(max_length=255, null=True, blank=True)
+    contact_page_email = models.EmailField(unique=True, null=True, blank=True)
+    contact_page_skype = models.CharField(max_length=255, null=True, blank=True)
     notice = models.TextField(null=True, blank=True)
 
     def save(self, *args, **kwargs):
