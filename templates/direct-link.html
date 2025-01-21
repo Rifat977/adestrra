@@ -135,6 +135,8 @@
                                       }, 2000);
                                   }).catch(err => console.error("Failed to copy:", err));
                               });
+                          } else if (data.created == ""){
+                            alert("Your account is inactive")
                           } else if (data.error) {
                               alert("Error:", error);
                           } else if (data.created == false){

@@ -9,7 +9,6 @@ import requests
 
 # admin.site.unregister(Group)
 
-
 from django.contrib import admin
 from .models import CustomUser
 
@@ -90,7 +89,6 @@ class SettingsAdmin(admin.ModelAdmin):
 
     def has_delete_permission(self, request, obj=None):
         return False
-
 
 
 from decimal import Decimal

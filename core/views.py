@@ -22,6 +22,8 @@ from decimal import Decimal
 import datetime
 import random
 
+from account.models import CustomUser
+
 
 # Create your views here.
 # 23943b6bc3d4b6b68e10ea32ec72a3c4
@@ -291,27 +293,34 @@ def statistics(request):
 @login_required
 def generate_link(request):
     if request.method == "POST":
-        placement_id = request.POST.get("placement_id")
-        sub_id = request.POST.get("subid")
-        subid = SubID.objects.get(id=int(sub_id))
-        if not placement_id:
-            return JsonResponse({"error": "Placement ID is required."}, status=400)
+        custom_user = CustomUser.objects.get(usern=request.user)
+        if custom_user.is_approved == "Active":
+            placement_id = request.POST.get("placement_id")
+            sub_id = request.POST.get("subid")
+            subid = SubID.objects.get(id=int(sub_id))
+            if not placement_id:
+                return JsonResponse({"error": "Placement ID is required."}, status=400)
 
-        try:
-            placement = PublisherPlacement.objects.get(id=placement_id)
-        except PublisherPlacement.DoesNotExist:
-            return JsonResponse({"error": "Placement not found."}, status=404)
+            try:
+                placement = PublisherPlacement.objects.get(id=placement_id)
+            except PublisherPlacement.DoesNotExist:
+                return JsonResponse({"error": "Placement not found."}, status=404)
 
-        placement_link, created = PlacementLink.objects.get_or_create(
-            user=request.user,
-            subid=subid,
-            placement=placement
-        )
+            placement_link, created = PlacementLink.objects.get_or_create(
+                user=request.user,
+                subid=subid,
+                placement=placement
+            )
 
-        return JsonResponse({
-            "link": placement_link.link,
-            "created": created  
-        })
+            return JsonResponse({
+                "link": placement_link.link,
+                "created": created  
+            })
+        else:
+            return JsonResponse({
+                "link" : "",
+                "created": ""  
+            })
 
     return JsonResponse({"error": "Invalid request method."}, status=405)
 
