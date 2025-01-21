@@ -165,7 +165,7 @@
               {% endif %}
               <h5 class="fw-bold">{{ latest_notice.title }}</h5>
               <p class="text-muted">
-                  {{ latest_notice.description|truncate_html:150|safe }}
+                  {{ latest_notice.description|truncate_html:145|safe }}
               </p>
               <a class="btn btn-sm btn-danger mb-3" href="{% url 'core:notice_detail' latest_notice.id %}">
                   Read More
