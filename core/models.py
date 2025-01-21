@@ -74,7 +74,7 @@ class PlacementLink(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        unique_together = ('user', 'placement')
+        unique_together = ('user', 'placement', 'subid')
         verbose_name_plural = "User Smart Link"
 
     def save(self, *args, **kwargs):

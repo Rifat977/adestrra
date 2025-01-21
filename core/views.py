@@ -185,23 +185,30 @@ def notice_detail(request, notice_id):
 
 @login_required
 def direct_link(request):
-    placement_links = PlacementLink.objects.filter(user=request.user)
-    placements = PublisherPlacement.objects.all()
     user_links = PlacementLink.objects.filter(user=request.user)
-    generated_links = {link.placement_id: link.link for link in user_links}
-    subids = SubID.objects.all()
-    
+    generated_links = {
+        link.placement_id: {
+            'link': link.link,
+            'used_subids': list(
+                PlacementLink.objects.filter(user=request.user, placement=link.placement)
+                .values_list('subid_id', flat=True)
+            )
+        }
+        for link in user_links
+    }
     context = {
-        'placement_links' : placement_links,
-        'placements': placements,
+        'placement_links': user_links,
+        'placements': PublisherPlacement.objects.filter(is_active=True),
         'generated_links': generated_links,
-        'subids' : subids
+        'subids': SubID.objects.all(),
     }
     return render(request, 'direct-link.html', context)
 
-from collections import defaultdict
-from django.db.models import Sum, F
 
+from collections import defaultdict
+from django.db.models import F
+from django.core.paginator import Paginator
+from django.db.models import Sum, Subquery, OuterRef
 
 @login_required
 def statistics(request):
@@ -212,10 +219,24 @@ def statistics(request):
             total_impressions=Sum('impressions'),
             total_revenue=Sum('revenue')
         )
-        .order_by('-total_revenue') 
+        .order_by('-total_revenue')
     )
 
-    statistics = AdStatistics.objects.filter(user=request.user).order_by('-id')
+    statistics_list = AdStatistics.objects.filter(user=request.user).select_related(
+        'placement'
+    ).annotate(
+        subid_name=Subquery(
+            PlacementLink.objects.filter(
+                placement=OuterRef('placement'),
+                user=OuterRef('user')
+            ).values('subid__name')[:1]
+        )
+    ).order_by('-id')
+
+    # Add pagination
+    paginator = Paginator(statistics_list, 10)  # Show 5 items per page
+    page = request.GET.get('page')
+    statistics = paginator.get_page(page)
 
     chart_data = {
         "placements": [item["placement__title"] for item in grouped_statistics],
@@ -232,15 +253,14 @@ def statistics(request):
     }
 
     total_impressions = sum(item["total_impressions"] for item in grouped_statistics)
-
     total_revenue = sum(item["total_revenue"] for item in grouped_statistics)
 
     return render(request, 'statistics.html', {
         'grouped_statistics': grouped_statistics,
         'chart_data': chart_data,
         'total_impressions': total_impressions,
-        'total_revenue' : total_revenue,
-        'statistics' : statistics,
+        'total_revenue': total_revenue,
+        'statistics': statistics,
     })
 
 

@@ -14,7 +14,7 @@ from django.contrib import admin
 from .models import CustomUser
 
 class CustomUserDisplay(admin.ModelAdmin):
-    list_display = ('username', 'first_name', 'last_name', 'email', 'is_approved', 'date_joined')
+    list_display = ('username', 'first_name', 'last_name', 'email', 'is_approved', 'is_verified', 'date_joined')
     search_fields = ('username', 'email')
     list_filter = ('is_verified', 'is_approved', ('date_joined', admin.DateFieldListFilter))
     list_editable = ('is_approved',)

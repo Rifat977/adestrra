@@ -10,31 +10,71 @@
     <div class="row">
       <div class="col-lg-6">
         <div class="card shadow">
-          <h5 class="card-header bg-primary text-white">Daily Statistics</h5>
-          <div class="table-responsive">
-            <table class="table table-hover table-bordered">
-              <thead class="table-light">
-                <tr>
-                  <th>Date</th>
-                  <th>Placement</th>
-                  <th>Impressions</th>
-                  <th>Revenue</th>
-                </tr>
-              </thead>
-              <tbody>
-                {% for stat in statistics %}
-                <tr>
-                  <td>{{ stat.date }}</td>
-                  <td>{{ stat.placement }}</td>
-                  <td>{{ stat.impressions }}</td>
-                  <td>${{ stat.revenue|floatformat:4 }}</td>
-                </tr>
-                {% endfor %}
-              </tbody>
-            </table>
-          </div>
+            <h5 class="card-header bg-primary text-white">Daily Statistics</h5>
+            <div class="table-responsive">
+                <table class="table table-hover table-bordered">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Date</th>
+                            <th>Placement</th>
+                            <th>Subid</th>
+                            <th>Impressions</th>
+                            <th>Revenue</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for stat in statistics %}
+                        <tr>
+                            <td>{{ stat.date }}</td>
+                            <td>{{ stat.placement }}</td>
+                            <td>{{ stat.subid_name }}</td>
+                            <td>{{ stat.impressions }}</td>
+                            <td>${{ stat.revenue|floatformat:4 }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            
+            {% if statistics.paginator.num_pages > 1 %}
+            <div class="card-footer">
+                <nav aria-label="Statistics pagination">
+                    <ul class="pagination justify-content-center mb-0">
+                        {% if statistics.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ statistics.previous_page_number }}" aria-label="Previous">
+                                <span aria-hidden="true">&laquo;</span>
+                            </a>
+                        </li>
+                        {% else %}
+                        <li class="page-item disabled">
+                            <span class="page-link">&laquo;</span>
+                        </li>
+                        {% endif %}
+    
+                        {% for num in statistics.paginator.page_range %}
+                        <li class="page-item {% if num == statistics.number %}active{% endif %}">
+                            <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                        </li>
+                        {% endfor %}
+    
+                        {% if statistics.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ statistics.next_page_number }}" aria-label="Next">
+                                <span aria-hidden="true">&raquo;</span>
+                            </a>
+                        </li>
+                        {% else %}
+                        <li class="page-item disabled">
+                            <span class="page-link">&raquo;</span>
+                        </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+            </div>
+            {% endif %}
         </div>
-      </div>
+    </div>
       <div class="col-md-6">
         <div class="card h-100">
           <div class="card-header d-flex align-items-center justify-content-between pb-0">

@@ -47,43 +47,42 @@
     </div>
 
     {% for placement in placements %}
-        {% if placement.direct_url and placement.is_active %}
-        <div class="card mb-3">
-          <div class="row g-0 align-items-center">
+    <div class="card mb-3">
+        <div class="row g-0 align-items-center">
             <div class="col-md-8">
-              <div class="card-body">
-                <h5 class="card-title">{{ placement.title }}</h5>
-                <p class="card-text">
-                  {{ placement.description }}
-                  <br>
-                  {% if placement.id in generated_links %}
-                  <div class="link-section mt-2">
-                    <button class="btn btn-sm btn-danger" disabled>Generated</button>
-                    <button class="btn btn-sm btn-primary copy-link-btn" data-link="{{ generated_links|dict_key:placement.id }}">Copy Link</button>
-                  </div>
-                  {% else %}
-                  <select name="" class="form-control subid mt-2" id="{{ placement.id }}">
-                    {% for subid in subids %}
-                    <option value="{{subid.id}}">{{subid.name}}</option>
-                    {% endfor %}
-                  </select>
-                  <button class="btn btn-sm btn-primary generate-link-btn mt-2" data-placement-id="{{ placement.id }}">Generate Link</button>
-                  {% endif %}
-                </p>
-                <p class="card-text">
-                  <small class="text-muted">Created: {{ placement.created_at|date:"M d, Y" }}</small>
-                </p>
-              </div>
+                <div class="card-body">
+                    <h5 class="card-title">{{ placement.title }}</h5>
+                    <p class="card-text">
+                        {{ placement.description }}
+                        <br>
+                        <select name="" class="form-control subid mt-2" id="{{ placement.id }}">
+                            {% for subid in subids %}
+                            <option value="{{ subid.id }}">
+                                {{ subid.name }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                        <button class="btn btn-sm btn-primary generate-link-btn mt-2" data-placement-id="{{ placement.id }}">
+                            Generate Link
+                        </button>
+                    </p>
+                    <p class="card-text">
+                        <small class="text-muted">Created: {{ placement.created_at|date:"M d, Y" }}</small>
+                    </p>
+                </div>
             </div>
             <div class="col-md-4 d-flex align-items-center justify-content-center">
-              {% if placement.image %}
-              <img class="card-img img-fluid rounded" src="{{ placement.image.url }}" alt="Placement image" style="max-height: 150px; max-width: 100%; object-fit: contain;" />
-              {% endif %}
+                {% if placement.image %}
+                <img class="card-img img-fluid rounded" src="{{ placement.image.url }}" alt="Placement image" 
+                     style="max-height: 150px; max-width: 100%; object-fit: contain;" />
+                {% endif %}
             </div>
-          </div>
         </div>
-        {% endif %}
-        {% endfor %}
+    </div>
+  {% endfor %}
+  
+
+
 
         <script>
           document.addEventListener("DOMContentLoaded", function () {
@@ -109,7 +108,8 @@
                       })
                       .then(response => response.json())
                       .then(data => {
-                          if (data.link) {
+                          if (data.link && data.created == true) {
+                              window.location.reload();
                               const parent = button.parentElement;
                               button.remove();
                               subid.remove();
@@ -136,11 +136,13 @@
                                   }).catch(err => console.error("Failed to copy:", err));
                               });
                           } else if (data.error) {
-                              alert(`Error: ${data.error}`);
+                              alert("Error:", error);
+                          } else if (data.created == false){
+                            alert("Smartink already created with this subid!")
                           }
                       })
                       .catch(error => {
-                          console.error("Error:", error);
+                          alert("Error:", error);
                       });
                   });
               });

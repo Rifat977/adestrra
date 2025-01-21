@@ -69,8 +69,8 @@ class PlacementLinkAdmin(admin.ModelAdmin):
     list_display = ('user', 'placement', 'subid', 'link')
     search_fields = ('user__username', 'placement__title')
 
-    def has_add_permission(self, request):
-        return False
+    # def has_add_permission(self, request):
+    #     return False
 
 
 

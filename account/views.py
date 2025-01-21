@@ -44,7 +44,7 @@ def register(request):
 
             user.save()
 
-            login(request, user)
+            login(request, user, backend='django.contrib.auth.backends.ModelBackend')
             messages.success(request, "Registration successful!")
             return redirect('core:dashboard')
         else:
