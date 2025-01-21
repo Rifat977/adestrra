@@ -47,12 +47,12 @@
               <div class="row">
                 <div class="mb-3 col-md-6">
                   <label for="firstName" class="form-label">First Name</label>
-                  <input class="form-control" type="text" id="firstName" name="first_name"
+                  <input class="form-control" type="text" placeholder="Enter your fristname" id="firstName" name="first_name"
                     value="{{request.user.first_name}}" autofocus />
                 </div>
                 <div class="mb-3 col-md-6">
                   <label for="lastName" class="form-label">Last Name</label>
-                  <input class="form-control" type="text" name="last_name" id="lastName"
+                  <input class="form-control" type="text" placeholder="Enter your lastname" name="last_name" id="lastName"
                     value="{{request.user.last_name}}" />
                 </div>
                 <div class="mb-3 col-md-6">
@@ -62,24 +62,24 @@
                 <div class="mb-3 col-md-6">
                   <label class="form-label" for="phoneNumber">Phone Number</label>
                   <div class="input-group input-group-merge">
-                    <input type="text" id="phoneNumber" name="phoneNumber" class="form-control" value="{{request.user.phone_number}}" />
+                    <input type="text" id="phoneNumber" placeholder="Enter your phone number" name="phoneNumber" class="form-control" value="{{request.user.phone_number}}" />
                   </div>
                 </div>
                 <div class="mb-3 col-md-6">
                   <label for="address" class="form-label">Address</label>
-                  <input type="text" class="form-control" id="address" name="address" value="{{request.user.address}}" />
+                  <input type="text" class="form-control" placeholder="Enter your address" id="address" name="address" value="{{request.user.address}}" />
                 </div>
                 <div class="mb-3 col-md-6">
                   <label for="state" class="form-label">Country</label>
-                  <input class="form-control" type="text" id="country" name="country" value="{{request.user.country}}" />
+                  <input class="form-control" type="text" placeholder="Enter your country" id="country" name="country" value="{{request.user.country}}" />
                 </div>
                 <div class="mb-3 col-md-6">
                   <label for="state" class="form-label">City</label>
-                  <input class="form-control" type="text" id="city" name="city" value="{{request.user.city}}" />
+                  <input class="form-control" type="text" placeholder="Enter your city" id="city" name="city" value="{{request.user.city}}" />
                 </div>
                 <div class="mb-3 col-md-6">
                   <label for="zipCode" class="form-label">Post Code</label>
-                  <input type="text" class="form-control" id="postCode" name="postCode" value="{{request.user.post_code}}"
+                  <input type="text" class="form-control" placeholder="Postal Code" id="postCode" name="postCode" value="{{request.user.post_code}}"
                     maxlength="6" />
                 </div>
               </div>
