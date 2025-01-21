@@ -96,6 +96,7 @@ class AdStatistics(models.Model):
     date = models.DateField(default=timezone.now)
     impressions = models.IntegerField(default=0)
     revenue = models.DecimalField(max_digits=10, decimal_places=4, default=float('0.00'))
+    subid = models.ForeignKey(SubID, on_delete=models.CASCADE)
 
 
     class Meta:

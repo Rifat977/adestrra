@@ -61,8 +61,8 @@ class PublisherPlacementAdmin(admin.ModelAdmin):
 
 
 class AdStatisticsAdmin(admin.ModelAdmin):
-    list_display = ('placement', 'user', 'date', 'impressions', 'revenue')
-    search_fields = ('placement__title', 'user__username', 'date')
+    list_display = ('placement', 'user', 'date', 'impressions', 'revenue', 'subid')
+    search_fields = ('placement__title', 'user__username', 'date', 'subid')
     list_filter = ('placement', 'date', 'user')
 
 class PlacementLinkAdmin(admin.ModelAdmin):

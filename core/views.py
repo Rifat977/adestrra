@@ -162,6 +162,28 @@ def dashboard(request):
         ],
     }
 
+
+    placement_statistics = (
+        AdStatistics.objects.filter(user=request.user)
+        .values('placement__title')  
+        .annotate(
+            total_impressions=Sum('impressions'),
+            total_revenue=Sum('revenue')
+        )
+        .order_by('-total_impressions') 
+    )
+
+    subid_statistics = (
+        AdStatistics.objects.filter(user=request.user)
+        .values('subid__name')  
+        .annotate(
+            total_impressions=Sum('impressions'),
+            total_revenue=Sum('revenue')
+        )
+        .order_by('-total_impressions') 
+    )
+
+
     context = {
         'placements': placements,
         'generated_links': generated_links,
@@ -173,6 +195,8 @@ def dashboard(request):
         'total_revenue': total_revenue,
         'statistics': statistics,
         'chart_data_2': json.dumps(chart_data_2_serializable),
+        'placement_statistics': placement_statistics,
+        'subid_statistics' : subid_statistics
     }
     
     return render(request, 'dashboard.html', context)
@@ -333,6 +357,7 @@ def update_ad_statistics(placement_link, user):
                 placement=placement_link.placement,
                 date=date.today(),
                 user=user,
+                subid=placement_link.subid,
                 defaults={"revenue": Decimal(0), "impressions": 0},
             )
             ad_stat.revenue = F('revenue') + revenue_per_impression

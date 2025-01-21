@@ -4,17 +4,5 @@ myvenv
 env
 myenv/
 myvenv/
-staticfiles
 *.pyc
 venv
-__pycache__/
-account/migrations/
-core/migrations/
-core/__pycache__/
-adestra/__pycache__/*
-core/migrations/__pycache__/
-home/__pycache__/
-home/migrations/__pycache__/
-rapid/__pycache__/
-user/__pycache__/
-user/migrations/__pycache__/

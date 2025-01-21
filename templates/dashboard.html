@@ -76,8 +76,6 @@
             </div>
           </div>
         </div>
-        
-        
 
         <div class="col mb-4">
           <div class="card">
@@ -87,7 +85,7 @@
                 <small class="text-muted">Total Impressions and Revenue</small>
               </div>
             </div>
-
+        
             <div class="d-flex justify-content-between align-items-center p-3">
               <div class="d-flex flex-column align-items-center gap-1">
                 <h2 class="mb-2">{{ total_impressions }}</h2>
@@ -98,10 +96,35 @@
                 <span>Total Revenue</span>
               </div>
             </div>
-
+        
             <div class="card-body">
+              <!-- Subid-wise Statistics -->
+              <h6 class="mt-4">Subid-wise Statistics</h6>
               <ul class="p-0 m-0">
-                {% for item in grouped_statistics %}
+                {% for item in subid_statistics %}
+                <li class="d-flex mb-3 pb-1">
+                  <div class="avatar flex-shrink-0 me-3">
+                    <span class="avatar-initial rounded bg-label-secondary">
+                      <i class="bx bx-collection"></i>
+                    </span>
+                  </div>
+                  <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
+                    <div class="me-2">
+                      <h6 class="mb-0">Source: {{ item.subid__name }}</h6>
+                      <small class="text-muted">Impressions: {{ item.total_impressions }}</small>
+                    </div>
+                    <div class="user-progress">
+                      <small class="fw-semibold">Revenue: ${{ item.total_revenue|floatformat:4 }}</small>
+                    </div>
+                  </div>
+                </li>
+                {% endfor %}
+              </ul>
+
+              <!-- Placement Statistics -->
+              <h6 class="mt-4">Placement Statistics</h6>
+              <ul class="p-0 m-0">
+                {% for item in placement_statistics %}
                 <li class="d-flex mb-4 pb-1">
                   <div class="avatar flex-shrink-0 me-3">
                     <span class="avatar-initial rounded bg-label-primary">
@@ -120,9 +143,11 @@
                 </li>
                 {% endfor %}
               </ul>
+        
             </div>
           </div>
         </div>
+
       </div>
 
       <div class="col-md-4">
@@ -150,8 +175,7 @@
             <ul class="list-group list-group-flush">
               {% for notice in notices %}
               <li class="list-group-item">
-                <a href="{% url 'core:notice_detail' notice.id %}" class="text-decoration-none text-dark">{{
-                  notice.title }}</a>
+                <a href="{% url 'core:notice_detail' notice.id %}" class="text-decoration-none text-dark">{{ notice.title }}</a>
                 <span class="text-muted float-end">{{ notice.created_at|date:"M d, Y" }}</span>
               </li>
               {% empty %}
