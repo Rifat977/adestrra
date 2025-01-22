@@ -3,10 +3,20 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import auth, messages
 from django.contrib.auth import authenticate, login, logout
-from django.utils.crypto import get_random_string
 from django.utils.timezone import now
 from .models import *
 from decimal import Decimal
+
+from django.utils.html import strip_tags
+from django.template.loader import render_to_string
+from . import send_email
+
+from django.utils.crypto import get_random_string, constant_time_compare
+from django.utils import timezone
+from django.contrib.auth.tokens import default_token_generator
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.utils.encoding import force_bytes, force_str
+from django.urls import reverse
 
 
 
@@ -128,6 +138,69 @@ def request_withdrawal(request):
         'withdrawals': withdrawals
     })
 
+def forgot_password(request):
+    if request.user.is_authenticated:
+        return redirect('core:dashboard')
+    if request.method == 'POST':
+        email = request.POST.get('email')
+        print(email)
+        try:
+            user = CustomUser.objects.get(email=email)
+        except CustomUser.DoesNotExist:  
+            messages.error(request, 'No user found with that email address.')
+            return redirect('account:forgot_password')
+
+        if user is not None:
+            token = default_token_generator.make_token(user)
+            uid = urlsafe_base64_encode(force_bytes(user.pk))
+
+            reset_link = reset_url = request.build_absolute_uri(f"/accounts/new-password/{uid}/{token}/")
+
+            subject = f"Password Reset Request"
+            html_content = render_to_string('email/password-reset.html', {
+                'user': user,
+                'reset_link': reset_link,
+            })
+            text_content = strip_tags(html_content)
+            send_mail(subject, text_content, 'noreply@cparobust.com', [user.email], html_message=html_content)
+
+            messages.success(request, 'A password reset link has been sent to your email.')
+            return redirect('account:forgot_password')
+        else:
+            messages.error(request, 'No user found with that email address.')
+            return redirect('account:forgot_password')
+    return render(request, 'account/forgot-password.html')
+
+def new_password(request, uidb64, token):
+    if request.user.is_authenticated:
+        return redirect('core:index')
+
+    uid = force_str(urlsafe_base64_decode(uidb64))
+    try:
+        user = CustomUser.objects.get(pk=uid)
+    except (TypeError, ValueError, OverflowError, User.DoesNotExist):
+        user = None
+
+    if user is not None and default_token_generator.check_token(user, token):
+        if request.method == 'POST':
+            new_password = request.POST.get('new_password1')
+            confirm_new_password = request.POST.get('new_password2')
+            if new_password == confirm_new_password:
+                user.set_password(new_password)
+                user.save()
+
+                messages.success(request, 'Your password has been successfully updated.')
+                print("Your password has been successfully updated.")
+                return redirect('account:login')
+            else:
+                messages.error(request, 'Passwords do not match.')
+                print('Passwords do not match.')
+                return redirect('account:new_password', uidb64=uidb64, token=token)
+    else:
+        messages.error(request, 'The password reset link is invalid.')
+        return redirect('account:new_password')
+
+    return render(request, 'account/new_password.html', {'uidb64': uidb64, 'token': token})
 
 @login_required
 def Profile(request):

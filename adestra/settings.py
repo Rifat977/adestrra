@@ -91,12 +91,12 @@ WSGI_APPLICATION = 'adestra.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        # 'NAME': 'cparobust',
-        # 'USER': 'user1',
-        # 'PASSWORD': 'password1',
-        'NAME': 'shambhdn_cparobust',
-        'USER': 'shambhdn_cparobust',
-        'PASSWORD': 'Cparobust@2024',
+        'NAME': 'cparobust',
+        'USER': 'user1',
+        'PASSWORD': 'password1',
+        # 'NAME': 'shambhdn_cparobust',
+        # 'USER': 'shambhdn_cparobust',
+        # 'PASSWORD': 'Cparobust@2024',
         'HOST': 'localhost', 
         'PORT': '3306',     
         'OPTIONS': {
@@ -194,3 +194,13 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+
+EMAIL_HOST = 'cparobust.com'  # Outgoing server
+EMAIL_PORT = 465              # SMTP Port for SSL
+EMAIL_USE_SSL = True          # Use SSL
+EMAIL_HOST_USER = 'noreply@cparobust.com'
+EMAIL_HOST_PASSWORD = '1qazZAQ!@#1'  # Replace this with the actual password for the email account
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
