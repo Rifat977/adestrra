@@ -7,7 +7,18 @@ from core.models import PlacementLink, PublisherPlacement, AdStatistics
 import requests
 
 
-# admin.site.unregister(Group)
+admin.site.unregister(Group)
+
+
+
+Group._meta.verbose_name = "Permission"
+Group._meta.verbose_name_plural = "Permissions"
+
+@admin.register(Group)
+class GroupAdmin(admin.ModelAdmin):
+    list_display = ("name",)  # Customize fields as needed
+
+
 
 from django.contrib import admin
 from .models import CustomUser
