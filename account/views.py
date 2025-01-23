@@ -165,7 +165,7 @@ def forgot_password(request):
             send_mail(subject, text_content, 'noreply@cparobust.com', [user.email], html_message=html_content)
 
             messages.success(request, 'A password reset link has been sent to your email.')
-            return redirect('account:forgot_password')
+            return redirect('account:login')
         else:
             messages.error(request, 'No user found with that email address.')
             return redirect('account:forgot_password')

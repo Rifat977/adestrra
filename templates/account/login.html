@@ -73,6 +73,16 @@
               <h4 class="mb-2">Welcome to CPA Robust! 👋</h4>
               <p class="mb-4">Please sign-in to your account and start the adventure</p>
 
+              {% if messages %}
+                    <div class="container mt-3">
+                        {% for message in messages %}
+                        <div class="alert alert-info" role="alert">
+                            {{ message }}
+                        </div>
+                        {% endfor %}
+                    </div>
+              {% endif %}
+
               <form id="formAuthentication" class="mb-3" action="{% url 'account:login' %}" method="POST">
                 {% csrf_token %}
                 <div class="mb-3">
