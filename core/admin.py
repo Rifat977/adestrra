@@ -49,8 +49,7 @@ class PublisherPlacementAdmin(admin.ModelAdmin):
             print(f"Fetched {len(data)} publisher placements successfully.")
         else:
             print(
-                f"Failed to fetch publisher placements. Status code: {response.status_code}",
-                level="error",
+                f"Failed to fetch publisher placements. Status code: {response.status_code}"
             )
 
     # def has_add_permission(self, request):
