@@ -198,7 +198,6 @@ def new_password(request, uidb64, token):
                 return redirect('account:new_password', uidb64=uidb64, token=token)
     else:
         messages.error(request, 'The password reset link is invalid.')
-        return redirect('account:new_password')
 
     return render(request, 'account/new_password.html', {'uidb64': uidb64, 'token': token})
 
