@@ -59,10 +59,45 @@ class PublisherPlacementAdmin(admin.ModelAdmin):
     #     return False
 
 
+from django.contrib.admin import SimpleListFilter
+from datetime import date, timedelta
+
+class DateFilter(SimpleListFilter):
+    title = 'Date Filter'
+    parameter_name = 'custom_date_filter'
+
+    def lookups(self, request, model_admin):
+        return (
+            ('today', 'Today'),
+            ('yesterday', 'Yesterday'),
+            ('this_week', 'This Week'),
+            ('last_week', 'Last Week'),
+            ('this_month', 'This Month'),
+            ('last_month', 'Last Month'),
+        )
+    def queryset(self, request, queryset):
+        if self.value() == 'today':
+            return queryset.filter(date=date.today())
+        elif self.value() == 'yesterday':
+            yesterday = date.today() - timedelta(days=1)
+            return queryset.filter(date=yesterday)
+        elif self.value() == 'this_week':
+            start_date = date.today() - timedelta(days=date.today().weekday())
+            return queryset.filter(date__gte=start_date)
+        elif self.value() == 'last_week':
+            start_date = date.today() - timedelta(days=7)
+            return queryset.filter(date__gte=start_date)
+        elif self.value() == 'this_month':
+            start_date = date.today().replace(day=1)
+            return queryset.filter(date__gte=start_date)
+        elif self.value() == 'last_month':
+            start_date = date.today() - timedelta(days=30)
+            return queryset.filter(date__gte=start_date)
+
 class AdStatisticsAdmin(admin.ModelAdmin):
     list_display = ('placement', 'user', 'date', 'impressions', 'revenue', 'subid')
     search_fields = ('placement__title', 'user__username', 'date', 'subid')
-    list_filter = ('placement', 'date', 'user')
+    list_filter = (DateFilter,)
 
 class PlacementLinkAdmin(admin.ModelAdmin):
     list_display = ('user', 'placement', 'subid', 'link')

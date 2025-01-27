@@ -236,21 +236,35 @@ from django.db.models import F
 from django.core.paginator import Paginator
 from django.db.models import Sum, Subquery, OuterRef
 
+
 @login_required
 def statistics(request):
-    grouped_statistics = (
-        AdStatistics.objects.filter(user=request.user)
-        .values('placement__title')
-        .annotate(
-            total_impressions=Sum('impressions'),
-            total_revenue=Sum('revenue')
-        )
-        .order_by('-total_revenue')
-    )
 
-    statistics_list = AdStatistics.objects.filter(user=request.user).select_related(
-        'placement'
-    ).annotate(
+    from datetime import datetime
+
+
+    # Get the date range from the request
+    start_date = request.GET.get('start_date')
+    end_date = request.GET.get('end_date')
+
+    # Convert string dates to datetime objects
+    try:
+        if start_date:
+            start_date = datetime.strptime(start_date, "%Y-%m-%d")
+        if end_date:
+            end_date = datetime.strptime(end_date, "%Y-%m-%d")
+    except ValueError:
+        start_date = end_date = None
+
+    # Filter AdStatistics based on the date range
+    statistics_list = AdStatistics.objects.filter(user=request.user)
+    if start_date:
+        statistics_list = statistics_list.filter(date__gte=start_date)
+    if end_date:
+        statistics_list = statistics_list.filter(date__lte=end_date)
+
+    # Annotate subid_name
+    statistics_list = statistics_list.select_related('placement').annotate(
         subid_name=Subquery(
             PlacementLink.objects.filter(
                 placement=OuterRef('placement'),
@@ -259,11 +273,22 @@ def statistics(request):
         )
     ).order_by('-id')
 
+    # Grouped statistics for chart
+    grouped_statistics = (
+        statistics_list.values('placement__title')
+        .annotate(
+            total_impressions=Sum('impressions'),
+            total_revenue=Sum('revenue')
+        )
+        .order_by('-total_revenue')
+    )
+
     # Add pagination
-    paginator = Paginator(statistics_list, 10)  # Show 5 items per page
+    paginator = Paginator(statistics_list, 10)  # Show 10 items per page
     page = request.GET.get('page')
     statistics = paginator.get_page(page)
 
+    # Chart data
     chart_data = {
         "placements": [item["placement__title"] for item in grouped_statistics],
         "series": [
@@ -293,7 +318,7 @@ def statistics(request):
 @login_required
 def generate_link(request):
     if request.method == "POST":
-        custom_user = CustomUser.objects.get(usern=request.user)
+        custom_user = CustomUser.objects.get(username=request.user)
         if custom_user.is_approved == "Active":
             placement_id = request.POST.get("placement_id")
             sub_id = request.POST.get("subid")

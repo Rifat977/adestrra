@@ -68,50 +68,41 @@
     </section>
 
     <!-- Contact and Links Section -->
-    <section class="contact-details">
-      <div class="row gy-4">
-        <!-- Contact Information -->
-        <div class="col-12 col-md-6 col-lg-3 text-center text-md-start">
-          <img src="{% static 'logo_2.png' %}" alt="Logo" class="pb-3 img-fluid">
-          <p class="text-muted">Email: mikayla_beer@feil.name</p>
-          <p class="text-muted">Phone: 906-179-8309</p>
+    <section class="contact-details" id="contact-details-section">
+      <div class="row text-center text-md-left">
+        <div class="col-12 col-md-6 col-lg-3 grid-margin">
+          <img src="{% static 'logo_21.png' %}" alt="" class="pb-2">
+          <div class="pt-2">
+            <p class="text-muted m-0">{{setting.contact_page_email}}</p>
+            <p class="text-muted m-0">{{setting.contact_page_skype}}</p>
+          </div>         
         </div>
-
-        <!-- Stay Updated -->
-        <div class="col-12 col-md-6 col-lg-3">
-          <h5 class="fw-bold">Stay Updated</h5>
-          <p class="text-muted">Subscribe to receive updates about our policies and services.</p>
+        <div class="col-12 col-md-6 col-lg-3 grid-margin">
+          <h5 class="pb-2">Get in Touch</h5>
+          <p class="text-muted">Don’t miss any updates of our new templates and extensions.!</p>
           <form>
-            <div class="input-group">
-              <input type="email" class="form-control" placeholder="Email address" aria-label="Email">
-              <button class="btn btn-dark" type="button">Subscribe</button>
-            </div>
+            <input type="text" class="form-control" id="Email" placeholder="Email id">
           </form>
+          <div class="pt-3">
+            <button class="btn btn-dark">Subscribe</button>
+          </div>   
         </div>
-
-        <!-- Quick Links -->
-        <div class="col-12 col-md-6 col-lg-3">
-          <h5 class="fw-bold">Quick Links</h5>
-          <ul class="list-unstyled">
-            <li><a href="{% url 'core:index' %}" class="text-muted">Home</a></li>
-            <li><a href="{% url 'core:contact' %}" class="text-muted">Contact</a></li>
-            <li><a href="{% url 'account:login' %}" class="text-muted">Login</a></li>
-            <li><a href="{% url 'account:register' %}" class="text-muted">Register</a></li>
-          </ul>
+        <div class="col-12 col-md-6 col-lg-3 grid-margin">
+          <h5 class="pb-2">Our Guidelines</h5>
+          <a href="{% url 'core:index' %}"><p class="m-0 pb-2">Home</p></a>   
+          <a href="{% url 'core:contact' %}"><p class="m-0 pb-2">Contact</p></a>   
+          <a href="{% url 'account:login' %}" ><p class="m-0 pt-1 pb-2">Login</p></a> 
+          <a href="{% url 'account:register' %}" ><p class="m-0 pt-1 pb-2">Register</p></a> 
         </div>
-
-        <!-- Address and Social Media -->
-        <div class="col-12 col-md-6 col-lg-3">
-          <h5 class="fw-bold">Our Address</h5>
-          <p class="text-muted">518 Schmeler Neck<br>Bartlett, Illinois</p>
-          <div class="d-flex justify-content-center justify-content-md-start gap-3">
-            <a href="#" class="text-dark"><i class="mdi mdi-facebook"></i></a>
-            <a href="#" class="text-dark"><i class="mdi mdi-twitter"></i></a>
-            <a href="#" class="text-dark"><i class="mdi mdi-instagram"></i></a>
-            <a href="#" class="text-dark"><i class="mdi mdi-linkedin"></i></a>
-          </div>
+        <div class="col-12 col-md-6 col-lg-3 grid-margin">
+            <h5 class="pb-2">Our address</h5>
+            <p class="text-muted">518 Schmeler Neck<br>Bartlett. Illinois</p>
+            <div class="d-flex justify-content-center justify-content-md-start">
+              <a href="mailto:{{setting.contact_page_email}}"><span class="mdi mdi-email"></span></a>
+              <a href="skype:{{setting.contact_page_skype}}?chat"><span class="mdi mdi-skype"></span></a>
+            </div>
         </div>
-      </div>
+      </div>  
     </section>
   </div>
 </div>

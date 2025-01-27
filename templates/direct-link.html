@@ -55,13 +55,15 @@
                     <p class="card-text">
                         {{ placement.description }}
                         <br>
-                        <select name="" class="form-control subid mt-2" id="{{ placement.id }}">
+                        <div class="form-group">
+                          <select name="" class="form-select subid mt-2" id="{{ placement.id }}">
                             {% for subid in subids %}
                             <option value="{{ subid.id }}">
                                 {{ subid.name }}
                             </option>
                             {% endfor %}
                         </select>
+                        </div>
                         <button class="btn btn-sm btn-primary generate-link-btn mt-2" data-placement-id="{{ placement.id }}">
                             Generate Link
                         </button>

@@ -90,7 +90,7 @@ def user_login(request):
             user = authenticate(request, username=email, password=password)
 
             if user:
-                if user.is_verified and user.is_approved == 'Active':
+                if user.is_verified:
                     login(request, user)
                     print(f"Debug: User logged in - {user.username}")  
                     messages.success(request, "Login successful!")

@@ -6,10 +6,47 @@ from django.db.models import Sum
 from core.models import PlacementLink, PublisherPlacement, AdStatistics
 import requests
 
+from django.contrib.admin import SimpleListFilter
+from datetime import date, timedelta
 
 admin.site.unregister(Group)
 
+class DateFilterForUser(SimpleListFilter):
+    title = 'Date Filter'
+    parameter_name = 'custom_date_filter'
 
+    def lookups(self, request, model_admin):
+        return (
+            ('today', 'Today'),
+            ('yesterday', 'Yesterday'),
+            ('this_week', 'This Week'),
+            ('last_week', 'Last Week'),
+            ('this_month', 'This Month'),
+            ('last_month', 'Last Month'),
+        )
+
+    def queryset(self, request, queryset):
+        if self.value() == 'today':
+            return queryset.filter(date_joined=date.today())
+        elif self.value() == 'yesterday':
+            yesterday = date.today() - timedelta(days=1)
+            return queryset.filter(date_joined=yesterday)
+        elif self.value() == 'this_week':
+            start_date = date.today() - timedelta(days=date.today().weekday())
+            return queryset.filter(date_joined__gte=start_date)
+        elif self.value() == 'last_week':
+            start_date = date.today() - timedelta(days=7)
+            end_date = start_date + timedelta(days=6)
+            return queryset.filter(date_joined__gte=start_date, date_joined__lte=end_date)
+        elif self.value() == 'this_month':
+            start_date = date.today().replace(day=1)
+            return queryset.filter(date_joined__gte=start_date)
+        elif self.value() == 'last_month':
+            first_day_this_month = date.today().replace(day=1)
+            last_month_last_day = first_day_this_month - timedelta(days=1)
+            start_date = last_month_last_day.replace(day=1)
+            return queryset.filter(date_joined__gte=start_date, date_joined__lte=last_month_last_day)
+        return queryset
 
 Group._meta.verbose_name = "Permission"
 Group._meta.verbose_name_plural = "Permissions"
@@ -26,7 +63,7 @@ from .models import CustomUser
 class CustomUserDisplay(admin.ModelAdmin):
     list_display = ('username', 'first_name', 'last_name', 'email', 'is_approved', 'is_verified', 'date_joined')
     search_fields = ('username', 'email')
-    list_filter = ('is_verified', 'is_approved', ('date_joined', admin.DateFieldListFilter))
+    list_filter = (DateFilterForUser,)
     list_editable = ('is_approved',)
     
     actions = ['approve_users', 'reject_users']
@@ -106,11 +143,43 @@ from decimal import Decimal
 from datetime import date
 from django.db.models import Sum
 
+class DateFilter(SimpleListFilter):
+    title = 'Date Filter'
+    parameter_name = 'custom_date_filter'
+
+    def lookups(self, request, model_admin):
+        return (
+            ('today', 'Today'),
+            ('yesterday', 'Yesterday'),
+            ('this_week', 'This Week'),
+            ('last_week', 'Last Week'),
+            ('this_month', 'This Month'),
+            ('last_month', 'Last Month'),
+        )
+    def queryset(self, request, queryset):
+        if self.value() == 'today':
+            return queryset.filter(date=date.today())
+        elif self.value() == 'yesterday':
+            yesterday = date.today() - timedelta(days=1)
+            return queryset.filter(date=yesterday)
+        elif self.value() == 'this_week':
+            start_date = date.today() - timedelta(days=date.today().weekday())
+            return queryset.filter(date__gte=start_date)
+        elif self.value() == 'last_week':
+            start_date = date.today() - timedelta(days=7)
+            return queryset.filter(date__gte=start_date)
+        elif self.value() == 'this_month':
+            start_date = date.today().replace(day=1)
+            return queryset.filter(date__gte=start_date)
+        elif self.value() == 'last_month':
+            start_date = date.today() - timedelta(days=30)
+            return queryset.filter(date__gte=start_date)
+
 @admin.register(AdminRevenueStatistics)
 class AdminRevenueStatisticsAdmin(admin.ModelAdmin):
     list_display = ('date', 'total_revenue', 'publisher_revenue', 'admin_revenue', 'total_impressions')
-    list_filter = ('date',)
-    search_fields = ('date',)
+    list_filter = (DateFilter,)
+    # search_fields = ('date',)
 
     def has_add_permission(self, request):
         return False
