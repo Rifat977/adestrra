@@ -105,7 +105,7 @@ class DateFilter(SimpleListFilter):
 
 class AdStatisticsAdmin(admin.ModelAdmin):
     list_display = ('placement', 'user', 'date', 'impressions', 'revenue', 'subid')
-    search_fields = ('placement__title', 'user__username', 'date', 'subid')
+    search_fields = ('placement__title', 'user__username', 'date')
     list_filter = (DateFilter,)
 
 class PlacementLinkAdmin(admin.ModelAdmin):
