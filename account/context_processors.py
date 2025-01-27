@@ -61,7 +61,7 @@ def admin_chart_processor(request):
             start_of_month = today.replace(day=1)
             statistics = AdminRevenueStatistics.objects.filter(date__gte=start_of_month)
         elif filter_type == 'last_month':
-            start_of_last_month = today.replace(day=1) - timedelta(days=1)
+            start_of_last_month = (today.replace(day=1) - timedelta(days=1)).replace(day=1)
             end_of_last_month = today.replace(day=1) - timedelta(days=1)
             statistics = AdminRevenueStatistics.objects.filter(date__gte=start_of_last_month, date__lte=end_of_last_month)
         elif filter_type == 'this_year':
