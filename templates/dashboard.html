@@ -5,6 +5,23 @@
 
 {% block title %}Dashboard{% endblock %}
 
+{% block style %} 
+<style>
+  /* Ensure canvas resizes properly */
+  .chart-container {
+    position: relative;
+    width: 100%; /* Take full width of the parent */
+    height: auto; /* Maintain aspect ratio */
+  }
+
+  @media (max-width: 768px) {
+    .chart-container {
+      height: 300px; /* Adjust height for smaller screens */
+    }
+  }
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="content-wrapper">
   <!-- Content -->
@@ -18,7 +35,7 @@
 
       <div class="col-md-8">
 
-        <div class="col mb-4">
+        <div class="col-12 col-md-6 mb-4">
           <div class="card h-100">
             <!-- Card Header with Navigation -->
             <div class="card-header">

@@ -48,31 +48,20 @@
       </section>
       <section class="contact-details" id="contact-details-section">
         <div class="row text-center text-md-left">
-          <div class="col-12 col-md-6 col-lg-3 grid-margin">
-            <img src="{% static 'logo_21.png' %}" alt="" class="pb-2">
-            <div class="pt-2">
-              <p class="text-muted m-0">{{setting.contact_page_email}}</p>
-              <p class="text-muted m-0">{{setting.contact_page_skype}}</p>
-            </div>         
-          </div>
-          <div class="col-12 col-md-6 col-lg-3 grid-margin">
-            <h5 class="pb-2">Get in Touch</h5>
-            <p class="text-muted">Don’t miss any updates of our new templates and extensions.!</p>
-            <form>
-              <input type="text" class="form-control" id="Email" placeholder="Email id">
-            </form>
-            <div class="pt-3">
-              <button class="btn btn-dark">Subscribe</button>
-            </div>   
-          </div>
-          <div class="col-12 col-md-6 col-lg-3 grid-margin">
-            <h5 class="pb-2">Our Guidelines</h5>
+          <div class="col-12 col-md-4 mt-3">
+            <h5 class="pb-2">Quick Navigation</h5>
             <a href="{% url 'core:index' %}"><p class="m-0 pb-2">Home</p></a>   
             <a href="{% url 'core:contact' %}"><p class="m-0 pb-2">Contact</p></a>   
             <a href="{% url 'account:login' %}" ><p class="m-0 pt-1 pb-2">Login</p></a> 
             <a href="{% url 'account:register' %}" ><p class="m-0 pt-1 pb-2">Register</p></a> 
           </div>
-          <div class="col-12 col-md-6 col-lg-3 grid-margin">
+          <div class="col-12 col-md-4">
+            <img src="{% static 'logo_21.png' %}" alt="" class="">
+            <div class="">
+              <p class="text-muted m-0">Cparobust has been connecting brands and marketing professionals through top-tier advertising and monetization solutions since 2013. Along with performance-boosting functionality.</p>
+            </div>         
+          </div>
+          <div class="col-12 col-md-4 mt-3">
               <h5 class="pb-2">Our address</h5>
               <p class="text-muted">518 Schmeler Neck<br>Bartlett. Illinois</p>
               <div class="d-flex justify-content-center justify-content-md-start">
@@ -80,7 +69,15 @@
                 <a href="skype:{{setting.contact_page_skype}}?chat"><span class="mdi mdi-skype"></span></a>
               </div>
           </div>
-        </div>  
+        </div> 
+      </section>
+      <section>
+        <div>
+          <hr class="hr" />
+          <div class="row text-center justify-content-center">
+            <p class="text-muted">Copyright &copy; 2025 Cparobust</p>
+          </div>   
+        </div>
       </section>
     </div> 
   </div>

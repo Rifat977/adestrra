@@ -50,9 +50,27 @@ def admin_chart_processor(request):
         elif filter_type == 'yesterday':
             yesterday = today - timedelta(days=1)
             statistics = AdminRevenueStatistics.objects.filter(date=yesterday)
-        elif filter_type == 'last_7_days':
-            last_7_days = today - timedelta(days=7)
-            statistics = AdminRevenueStatistics.objects.filter(date__gte=last_7_days)
+        elif filter_type == 'this_week':
+            start_of_week = today - timedelta(days=today.weekday())
+            statistics = AdminRevenueStatistics.objects.filter(date__gte=start_of_week)
+        elif filter_type == 'last_week':
+            start_of_last_week = today - timedelta(days=today.weekday() + 7)
+            end_of_last_week = today - timedelta(days=today.weekday() + 1)
+            statistics = AdminRevenueStatistics.objects.filter(date__gte=start_of_last_week, date__lte=end_of_last_week)
+        elif filter_type == 'this_month':
+            start_of_month = today.replace(day=1)
+            statistics = AdminRevenueStatistics.objects.filter(date__gte=start_of_month)
+        elif filter_type == 'last_month':
+            start_of_last_month = today.replace(day=1) - timedelta(days=1)
+            end_of_last_month = today.replace(day=1) - timedelta(days=1)
+            statistics = AdminRevenueStatistics.objects.filter(date__gte=start_of_last_month, date__lte=end_of_last_month)
+        elif filter_type == 'this_year':
+            start_of_year = today.replace(month=1, day=1)
+            statistics = AdminRevenueStatistics.objects.filter(date__gte=start_of_year)
+        elif filter_type == 'last_year':
+            start_of_last_year = today.replace(year=today.year - 1, month=1, day=1)
+            end_of_last_year = today.replace(year=today.year - 1, month=12, day=31)
+            statistics = AdminRevenueStatistics.objects.filter(date__gte=start_of_last_year, date__lte=end_of_last_year)
         elif filter_type == 'custom_range':
             start_date = request.GET.get('start_date')
             end_date = request.GET.get('end_date')
