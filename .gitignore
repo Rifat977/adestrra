@@ -4,5 +4,4 @@ myvenv
 env
 myenv/
 myvenv/
-*.pyc
 venv
