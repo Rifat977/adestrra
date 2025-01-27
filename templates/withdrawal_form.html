@@ -87,7 +87,7 @@
                 {% if withdrawal.status == 'PENDING' %}
                 <span class="badge bg-warning">{{ withdrawal.status }}</span>
                 {% elif withdrawal.status == 'APPROVED' %}
-                <span class="badge bg-primary">{{ withdrawal.status }}</span>
+                <span class="badge bg-success">{{ withdrawal.status }}</span>
                 {% else %}
                 <span class="badge bg-danger">{{ withdrawal.status }}</span>
                 {% endif %}
