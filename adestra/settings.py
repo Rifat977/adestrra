@@ -91,12 +91,12 @@ WSGI_APPLICATION = 'adestra.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        # 'NAME': 'cparobust',
-        # 'USER': 'user1',
-        # 'PASSWORD': 'password1',
-        'NAME': 'shambhdn_cparobust',
-        'USER': 'shambhdn_cparobust',
-        'PASSWORD': 'Cparobust@2024',
+        'NAME': 'cparobust',
+        'USER': 'user1',
+        'PASSWORD': 'password1',
+        # 'NAME': 'shambhdn_cparobust',
+        # 'USER': 'shambhdn_cparobust',
+        # 'PASSWORD': 'Cparobust@2024',
         'HOST': 'localhost', 
         'PORT': '3306',     
         'OPTIONS': {

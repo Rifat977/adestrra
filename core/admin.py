@@ -74,6 +74,8 @@ class DateFilter(SimpleListFilter):
             ('last_week', 'Last Week'),
             ('this_month', 'This Month'),
             ('last_month', 'Last Month'),
+            ('this_year', 'This Year'),
+            ('last_year', 'Last Year'),
         )
     def queryset(self, request, queryset):
         if self.value() == 'today':
@@ -93,6 +95,13 @@ class DateFilter(SimpleListFilter):
         elif self.value() == 'last_month':
             start_date = date.today() - timedelta(days=30)
             return queryset.filter(date__gte=start_date)
+        elif self.value() == 'this_year':
+            start_date = date.today().replace(month=1, day=1)
+            return queryset.filter(date__gte=start_date)
+        elif self.value() == 'last_year':
+            start_date = date.today().replace(year=date.today().year - 1, month=1, day=1)
+            return queryset.filter(date__gte=start_date)
+        return queryset
 
 class AdStatisticsAdmin(admin.ModelAdmin):
     list_display = ('placement', 'user', 'date', 'impressions', 'revenue', 'subid')
@@ -115,6 +124,6 @@ class VisitorLogAdmin(admin.ModelAdmin):
 
 admin.site.register(AdStatistics, AdStatisticsAdmin)
 admin.site.register(PlacementLink, PlacementLinkAdmin)
-admin.site.register(VisitorLog, VisitorLogAdmin)
+# admin.site.register(VisitorLog, VisitorLogAdmin)
 admin.site.register(Notice)
 admin.site.register(SubID)
