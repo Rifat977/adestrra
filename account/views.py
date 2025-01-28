@@ -201,6 +201,8 @@ def new_password(request, uidb64, token):
 
     return render(request, 'account/new_password.html', {'uidb64': uidb64, 'token': token})
 
+import pycountry
+
 @login_required
 def Profile(request):
     if request.method == 'POST':
@@ -208,6 +210,7 @@ def Profile(request):
         user.first_name = request.POST.get('first_name', user.first_name)
         user.last_name = request.POST.get('last_name', user.last_name)
         user.phone_number = request.POST.get('phoneNumber', user.phone_number)
+        user.fb_id = request.POST.get('fb_id', user.fb_id)
         user.address = request.POST.get('address', user.address)
         user.country = request.POST.get('country', user.country)
         user.city = request.POST.get('city', user.city)
@@ -219,4 +222,5 @@ def Profile(request):
         user.save()
         messages.success(request, "Your profile has been updated successfully.")
         return redirect('account:profile')
-    return render(request, 'account/profile.html')
+    countries = [country.name for country in pycountry.countries]
+    return render(request, 'account/profile.html', {'countries': countries})

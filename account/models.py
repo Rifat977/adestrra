@@ -20,6 +20,7 @@ class CustomUser(AbstractUser):
     balance = models.FloatField(default=0.0)
     avatar = models.ImageField(upload_to='avatars/', blank=True)
     phone_number = models.CharField(max_length=20, blank=True, default='')
+    fb_id = models.CharField(max_length=100, blank=True, default='')
     address = models.CharField(max_length=200, blank=True, default='')
     country = models.CharField(max_length=100, blank=True, default='')
     city = models.CharField(max_length=100, blank=True, default='')
