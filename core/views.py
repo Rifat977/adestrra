@@ -82,9 +82,15 @@ def dashboard(request):
     statistics = AdStatistics.objects.filter(user=request.user).order_by('-id')
 
     today = datetime.date.today()
-    weekly_labels = [(today - datetime.timedelta(days=i)).strftime('%Y-%m-%d') for i in range(6, -1, -1)]
 
+    weekly_labels = [(today - datetime.timedelta(days=i)).strftime('%Y-%m-%d') for i in range(6, -1, -1)]
     monthly_labels = [(today - datetime.timedelta(days=i)).strftime('%Y-%m-%d') for i in range(29, -1, -1)]
+
+    weekly_labels_reversed = weekly_labels[::-1]
+    monthly_labels_reversed = monthly_labels[::-1]
+
+    print(weekly_labels_reversed)
+    print(monthly_labels_reversed)
 
     monthly_impressions = []
     monthly_revenue = []
@@ -111,17 +117,32 @@ def dashboard(request):
         ],
     }
 
+    weekly_impressions = []
+    weekly_revenue = []
+    for date in weekly_labels_reversed:
+        daily_stats = AdStatistics.objects.filter(
+            user=request.user,
+            date=date
+        ).aggregate(
+            total_impressions=Sum('impressions'),
+            total_revenue=Sum('revenue')
+        )
+        weekly_impressions.append(daily_stats['total_impressions'] or 0)
+        weekly_revenue.append(daily_stats['total_revenue'] or 0)
+
+
+
     chart_data_2 = {
-        "weekly_labels": weekly_labels,
-        "monthly_labels": monthly_labels,
+        "weekly_labels": weekly_labels_reversed,
+        "monthly_labels": monthly_labels_reversed,
         "weekly_series": [
             {
                 "name": "Impressions",
-                "data": [int(item.get("total_impressions", 0) or 0) for item in grouped_statistics],
+                "data": weekly_impressions,
             },
             {
                 "name": "Revenue",
-                "data": [decimal_to_float(item.get("total_revenue", 0) or 0) for item in grouped_statistics],
+                "data": weekly_revenue,
             },
         ],
         "monthly_series": [
@@ -140,16 +161,16 @@ def dashboard(request):
     total_revenue = sum(decimal_to_float(item.get("total_revenue", 0) or 0) for item in grouped_statistics)
 
     chart_data_2_serializable = {
-        "weekly_labels": weekly_labels,
-        "monthly_labels": monthly_labels,
+        "weekly_labels": weekly_labels_reversed,
+        "monthly_labels": monthly_labels_reversed,
         "weekly_series": [
             {
                 "name": "Impressions",
-                "data": [int(item.get("total_impressions", 0) or 0) for item in grouped_statistics],
+                "data": weekly_impressions,
             },
             {
                 "name": "Revenue",
-                "data": [decimal_to_float(item.get("total_revenue", 0) or 0) for item in grouped_statistics],
+                "data": [decimal_to_float(revenue) for revenue in weekly_revenue],
             },
         ],
         "monthly_series": [
@@ -163,7 +184,6 @@ def dashboard(request):
             },
         ],
     }
-
 
     placement_statistics = (
         AdStatistics.objects.filter(user=request.user)
