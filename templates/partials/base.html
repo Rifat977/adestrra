@@ -66,7 +66,7 @@
         {% if request.user.is_approved != 'Active' %}
             <div class="container mt-2">
               <div class="alert alert-danger" role="alert">
-                Your account is currently inactive. Please contact the administrator.
+                Your account is currently inactive. Please contact our support system. <a href="{% core 'index' %}" class="btn btn-danger">Contact Us</a>
               </div>
             </div>
         {% endif %}

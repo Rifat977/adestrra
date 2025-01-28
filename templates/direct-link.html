@@ -138,11 +138,11 @@
                                   }).catch(err => console.error("Failed to copy:", err));
                               });
                           } else if (data.created == ""){
-                            alert("Your account is inactive")
+                            alert("Your can't generate now money earning smart link because your account is inactive. Please contact our admin to active your publisher account.")
                           } else if (data.error) {
                               alert("Error:", error);
                           } else if (data.created == false){
-                            alert("Smartink already created with this subid!")
+                            alert("This smart link is already generated")
                           }
                       })
                       .catch(error => {
