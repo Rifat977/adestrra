@@ -18,3 +18,4 @@ sqlparse
 typing_extensions
 urllib3
 yarl
+django-countries
