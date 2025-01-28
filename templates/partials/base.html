@@ -64,12 +64,32 @@
       <div class="layout-page">
 
         {% if request.user.is_approved != 'Active' %}
-            <div class="container mt-2">
-              <div class="alert alert-danger" role="alert">
-                Your account is currently inactive. Please contact our support system. <a href="{% core 'index' %}" class="btn btn-danger">Contact Us</a>
+          <div class="container mt-2">
+            <div class="alert alert-danger" role="alert">
+              Your account is currently inactive. Please contact our support system.
+              <div class="dropdown d-inline position-relative">
+                <button
+                  class="btn btn-sm btn-danger dropdown-toggle"
+                  type="button"
+                  id="contactDropdown"
+                  data-bs-toggle="dropdown"
+                  aria-expanded="false"
+                >
+                  Contact Us
+                </button>
+                <ul class="dropdown-menu" aria-labelledby="contactDropdown" style="z-index: 1200;">
+                  <li>
+                    <a class="dropdown-item" href="skype:your_skype_id?chat" target="_blank">Skype</a>
+                  </li>
+                  <li>
+                    <a class="dropdown-item" href="mailto:support@example.com" target="_blank">Email</a>
+                  </li>
+                </ul>
               </div>
             </div>
+          </div>
         {% endif %}
+
 
         <!-- Navbar -->
 
